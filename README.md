@@ -364,7 +364,7 @@ Actual AI provider (OpenAI, Azure OpenAI, local ONNX models, etc.) is pluggable 
 - Optional: `dotnet-ef` tool for migrations  
   ```bash
   dotnet tool install --global dotnet-ef
-````
+
 
 ### 2. Clone & Restore
 
@@ -613,3 +613,4 @@ Update this section and add a `LICENSE` file as needed.
 
 ```
 ```
+
