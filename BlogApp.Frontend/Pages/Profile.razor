@@ -1,0 +1,318 @@
+@page "/profile/{username?}"
+@attribute [Authorize]
+@inject IAuthService AuthService
+@inject IUserService UserService
+@inject IBlogService BlogService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>@(user?.DisplayName ?? user?.Username ?? "Profile") - BlogApp</PageTitle>
+
+@if (isLoadingProfile)
+{
+    <div class="medium-profile-page">
+        <div class="medium-profile-skeleton" />
+    </div>
+}
+else if (user == null)
+{
+    <div class="medium-page">
+        <div class="medium-empty-state">
+            <h2>User not found</h2>
+            <p>The user you're looking for doesn't exist.</p>
+            <a href="/" class="medium-btn medium-btn-primary">Go Home</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="medium-profile-header">
+        <div class="medium-profile-background" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="medium-profile-content">
+                <div class="medium-profile-avatar-container">
+                    @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                    {
+                        <img src="@user.AvatarUrl" alt="@user.DisplayName" class="medium-profile-avatar-large" />
+                    }
+                    else
+                    {
+                        <div class="medium-profile-avatar-large medium-profile-avatar-placeholder">
+                            @(user.DisplayName?[0] ?? user.Username[0])
+                        </div>
+                    }
+                    @if (isOwnProfile)
+                    {
+                        <button class="medium-edit-avatar-btn" title="Edit avatar" @onclick="EditProfile">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.558.558l2.685.8c.827.24 1.715-.13 2.214-1.32l8.4-8.4z" />
+                                <path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5-1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z" />
+                            </svg>
+                        </button>
+                    }
+                </div>
+                <div class="medium-profile-info">
+                    <div class="medium-profile-name-wrapper">
+                        <h1>@(user.DisplayName ?? user.Username)</h1>
+                        @if (!string.IsNullOrEmpty(user.Username))
+                        {
+                            <span class="medium-profile-username">@($"@{user.Username}")</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(user.Bio))
+                    {
+                        <p class="medium-profile-bio">@user.Bio</p>
+                    }
+                    <div class="medium-profile-meta">
+                        <span><strong>@user.PostsCount</strong> Posts</span>
+                        <span><strong>@user.FollowersCount</strong> Followers</span>
+                        <span><strong>@user.FollowingCount</strong> Following</span>
+                    </div>
+                    <div class="medium-profile-links">
+                        @if (!string.IsNullOrEmpty(user.Website))
+                        {
+                            <a href="@user.Website" target="_blank" class="medium-profile-link">🌐 @user.Website</a>
+                        }
+                        @if (!string.IsNullOrEmpty(user.GitHub))
+                        {
+                            <a href="@user.GitHub" target="_blank" class="medium-profile-link">🐙 GitHub</a>
+                        }
+                        @if (!string.IsNullOrEmpty(user.Twitter))
+                        {
+                            <a href="@user.Twitter" target="_blank" class="medium-profile-link">🐦 Twitter</a>
+                        }
+                        @if (!string.IsNullOrEmpty(user.LinkedIn))
+                        {
+                            <a href="@user.LinkedIn" target="_blank" class="medium-profile-link">💼 LinkedIn</a>
+                        }
+                    </div>
+                </div>
+                <div class="medium-profile-actions">
+                    @if (!isOwnProfile)
+                    {
+                        <button class="medium-btn medium-btn-primary" @onclick="ToggleFollow">
+                            @(isFollowing ? "Following" : "Follow")
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="medium-btn medium-btn-outline" @onclick="EditProfile">
+                            Edit Profile
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="medium-page">
+        <div class="medium-profile-tabs">
+            <button class="medium-tab @(activeTab == "posts" ? "active" : "")" @onclick='() => SwitchTab("posts")'>
+                Posts (@user.PostsCount)
+            </button>
+            <button class="medium-tab @(activeTab == "about" ? "active" : "")" @onclick='() => SwitchTab("about")'>
+                About
+            </button>
+        </div>
+
+        @if (activeTab == "posts")
+        {
+            <div class="medium-posts-list">
+                @if (isLoadingPosts)
+                {
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <div class="medium-post-skeleton" />
+                    }
+                }
+                else if (userPosts.Any())
+                {
+                    @foreach (var post in userPosts)
+                    {
+                        <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                            @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                            {
+                                <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                            }
+                            <div class="medium-post-content">
+                                <h3>@post.Title</h3>
+                                <p class="medium-post-excerpt">@post.Excerpt</p>
+                                <div class="medium-post-meta">
+                                    <span>@post.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                                    <span>💙 @post.LikesCount</span>
+                                    <span>💬 @post.CommentsCount</span>
+                                    <span>⏱️ @post.ReadingTimeMinutes min read</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="medium-empty-state">
+                        <p>@(user.DisplayName ?? user.Username) hasn't published any posts yet.</p>
+                    </div>
+                }
+            </div>
+        }
+        else if (activeTab == "about")
+        {
+            <div class="medium-about-section">
+                @if (!string.IsNullOrEmpty(user.Bio))
+                {
+                    <div class="medium-about-block">
+                        <h3>About</h3>
+                        <p>@user.Bio</p>
+                    </div>
+                }
+                
+                <div class="medium-about-block">
+                    <h3>Member since</h3>
+                    <p>@user.CreatedAt.ToLocalTime().ToString("MMMM dd, yyyy")</p>
+                </div>
+
+                <div class="medium-about-block">
+                    <h3>Activity</h3>
+                    <div class="medium-about-stats">
+                        <div class="medium-about-stat-item">
+                            <span class="medium-about-stat-label">Posts</span>
+                            <span class="medium-about-stat-value">@user.PostsCount</span>
+                        </div>
+                        <div class="medium-about-stat-item">
+                            <span class="medium-about-stat-label">Followers</span>
+                            <span class="medium-about-stat-value">@user.FollowersCount</span>
+                        </div>
+                        <div class="medium-about-stat-item">
+                            <span class="medium-about-stat-label">Following</span>
+                            <span class="medium-about-stat-value">@user.FollowingCount</span>
+                        </div>
+                        <div class="medium-about-stat-item">
+                            <span class="medium-about-stat-label">Total likes</span>
+                            <span class="medium-about-stat-value">@user.LikesCount</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string? Username { get; set; }
+
+    private User? user;
+    private List<BlogPost> userPosts = new();
+    private bool isLoadingProfile = true;
+    private bool isLoadingPosts = true;
+    private bool isOwnProfile = false;
+    private bool isFollowing = false;
+    private string activeTab = "posts";
+    private User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadProfile();
+    }
+
+    private async Task LoadProfile()
+    {
+        isLoadingProfile = true;
+        
+        try
+        {
+            currentUser = await AuthService.GetCurrentUserAsync();
+
+            if (string.IsNullOrEmpty(Username))
+            {
+                // View own profile
+                user = currentUser;
+                isOwnProfile = true;
+                await LoadUserPosts();
+            }
+            else
+            {
+                // View other user's profile
+                user = await UserService.GetUserByUsernameAsync(Username);
+                isOwnProfile = currentUser?.Username == user?.Username;
+                if (user != null)
+                {
+                    await LoadUserPosts();
+                    isFollowing = (currentUser != null)
+                        && await UserService.IsFollowingAsync(currentUser.Id, user.Id);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            user = null; // will trigger error UI
+        }
+        finally
+        {
+            isLoadingProfile = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadUserPosts()
+    {
+        if (user == null) return;
+
+        isLoadingPosts = true;
+        try
+        {
+            userPosts = await BlogService.GetPostsByAuthorAsync(user.Id);
+        }
+        catch
+        {
+            userPosts = new(); // error fallback
+        }
+        finally
+        {
+            isLoadingPosts = false;
+        }
+    }
+
+    private void SwitchTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private async Task ToggleFollow()
+    {
+        if (user == null || currentUser == null || isOwnProfile) return;
+
+        try
+        {
+            if (isFollowing)
+            {
+                await UserService.UnfollowUserAsync(currentUser.Id, user.Id);
+            }
+            else
+            {
+                await UserService.FollowUserAsync(currentUser.Id, user.Id);
+            }
+            isFollowing = !isFollowing;
+        }
+        catch
+        {
+            Snackbar.Add("Error updating follow state.", Severity.Error);
+        }
+    }
+
+    private void EditProfile()
+    {
+        Navigation.NavigateTo("/profile/edit");
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+}

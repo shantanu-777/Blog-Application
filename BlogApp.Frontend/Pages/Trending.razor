@@ -1,0 +1,296 @@
+@page "/trending"
+@attribute [Authorize]
+@inject IBlogService BlogService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Trending - BlogApp</PageTitle>
+
+<div class="medium-page">
+    <div class="medium-page-header">
+        <h1>Trending Now</h1>
+        <p>Discover the most popular stories from our community</p>
+    </div>
+
+    <div class="medium-trending-filters">
+        <button class="medium-filter-btn active">This Week</button>
+        <button class="medium-filter-btn">This Month</button>
+        <button class="medium-filter-btn">All Time</button>
+    </div>
+
+    <div class="medium-posts-list">
+        @if (isLoading)
+        {
+            @for (int i = 0; i < 6; i++)
+            {
+                <div class="medium-post-skeleton" />
+            }
+        }
+        else if (posts.Any())
+        {
+            @foreach (var post in posts)
+            {
+                <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                    @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                    {
+                        <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                    }
+                    <div class="medium-post-content">
+                        <div class="medium-post-badge">🔥 Trending</div>
+                        <h3>@post.Title</h3>
+                        <p class="medium-post-excerpt">@post.Excerpt</p>
+                        <div class="medium-post-meta">
+                            <div class="medium-post-author">
+                                @if (post.Author?.AvatarUrl != null)
+                                {
+                                    <img src="@post.Author.AvatarUrl" alt="@post.Author.DisplayName" class="medium-avatar" />
+                                }
+                                <div>
+                                    <span>@post.Author?.DisplayName</span>
+                                    <span class="medium-post-date">@post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+                            <div class="medium-post-stats">
+                                <span>💙 @post.LikesCount</span>
+                                <span>💬 @post.CommentsCount</span>
+                                <span>⏱️ @post.ReadingTimeMinutes min</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="medium-empty-state">
+                <p>No trending posts yet. Be the first to create engaging content!</p>
+                @if (isAuthenticated)
+                {
+                    <a href="/write" class="medium-btn medium-btn-primary">Write Your First Post</a>
+                }
+            </div>
+        }
+    </div>
+
+    @if (hasMorePosts && !isLoading)
+    {
+        <div class="medium-load-more">
+            <button class="medium-btn medium-btn-outline" @onclick="LoadMorePosts" disabled="@isLoadingMore">
+                @if (isLoadingMore)
+                {
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <span>Load More</span>
+                }
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<BlogPost> posts = new();
+    private bool isLoading = true;
+    private bool isLoadingMore = false;
+    private bool hasMorePosts = false;
+    private bool isAuthenticated = false;
+    private int currentPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        await LoadTrendingPosts();
+    }
+
+    private async Task LoadTrendingPosts()
+    {
+        try
+        {
+            posts = await BlogService.GetTrendingPostsAsync(10);
+            hasMorePosts = posts.Count >= 10;
+        }
+        catch (Exception)
+        {
+            // Use sample data if backend fails
+            LoadSampleTrendingPosts();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadMorePosts()
+    {
+        isLoadingMore = true;
+        currentPage++;
+        
+        try
+        {
+            // Implement pagination if needed
+            await Task.Delay(500); // Simulate loading
+        }
+        finally
+        {
+            isLoadingMore = false;
+        }
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+
+    private void LoadSampleTrendingPosts()
+    {
+        posts = new List<BlogPost>
+        {
+            new BlogPost
+            {
+                Id = "1",
+                Title = "The Future of AI in Content Creation",
+                Excerpt = "Exploring how artificial intelligence is revolutionizing the way we create and consume content in the digital age.",
+                FeaturedImageUrl = "/images/sample-post-1.jpg",
+                Author = new User { DisplayName = "Sarah Chen", Username = "sarahchen", AvatarUrl = null },
+                CreatedAt = DateTime.Now.AddDays(-2),
+                ReadingTimeMinutes = 5,
+                Slug = "future-ai-content-creation",
+                LikesCount = 1242,
+                CommentsCount = 48
+            },
+            new BlogPost
+            {
+                Id = "2",
+                Title = "Building Scalable Web Applications",
+                Excerpt = "A comprehensive guide to creating web applications that can handle millions of users with ease.",
+                FeaturedImageUrl = "/images/sample-post-2.jpg",
+                Author = new User { DisplayName = "Alex Rodriguez", Username = "alexrod", AvatarUrl = null },
+                CreatedAt = DateTime.Now.AddDays(-5),
+                ReadingTimeMinutes = 8,
+                Slug = "building-scalable-web-apps",
+                LikesCount = 1567,
+                CommentsCount = 92
+            },
+            new BlogPost
+            {
+                Id = "3",
+                Title = "The Art of Minimalist Design",
+                Excerpt = "How less can be more when it comes to creating beautiful, functional user interfaces.",
+                FeaturedImageUrl = "/images/sample-post-3.jpg",
+                Author = new User { DisplayName = "Emma Wilson", Username = "emmawilson", AvatarUrl = null },
+                CreatedAt = DateTime.Now.AddDays(-7),
+                ReadingTimeMinutes = 6,
+                Slug = "art-minimalist-design",
+                LikesCount = 892,
+                CommentsCount = 35
+            }
+        };
+    }
+}
+
+<style>
+.medium-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.medium-page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.medium-page-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.medium-page-header p {
+    color: #666;
+    font-size: 1.25rem;
+}
+
+.medium-trending-filters {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.medium-filter-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #eee;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.medium-filter-btn:hover {
+    border-color: #1a8917;
+}
+
+.medium-filter-btn.active {
+    background: #1a8917;
+    color: #fff;
+    border-color: #1a8917;
+}
+
+.medium-post-badge {
+    display: inline-block;
+    background: #ff6347;
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.medium-post-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.medium-post-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.medium-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.medium-post-date {
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.medium-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.medium-empty-state p {
+    font-size: 1.25rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.medium-load-more {
+    text-align: center;
+    margin-top: 3rem;
+}
+</style>
+

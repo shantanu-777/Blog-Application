@@ -1,0 +1,268 @@
+﻿@page "/ai-write"
+@using BlogApp.Shared.Models.AI
+@inject IAIContentService AIContentService
+@inject IBlogService BlogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>AI Write - BlogApp</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-8">
+    <MudText Typo="Typo.h4" Class="mb-6" Style="font-weight: 600;">
+        <MudIcon Icon="Icons.Material.Filled.AutoAwesome" Class="mr-2" />
+        AI Content Generator
+    </MudText>
+
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <MudCard Class="pa-6" Style="height: fit-content;">
+                <MudText Typo="Typo.h6" Class="mb-4">Content Settings</MudText>
+                
+                <MudForm @ref="form" @bind-IsValid="@isValid">
+                    <MudTextField @bind-Value="request.Topic"
+                                 Label="Topic"
+                                 Variant="Variant.Outlined"
+                                 Required="true"
+                                 Class="mb-4" />
+
+                    <MudTextField @bind-Value="request.AdditionalContext"
+                                 Label="Additional Context (Optional)"
+                                 Variant="Variant.Outlined"
+                                 Lines="3"
+                                 Class="mb-4" />
+
+                    <MudSelect @bind-Value="request.Type"
+                              Label="Content Type"
+                              Variant="Variant.Outlined"
+                              Class="mb-4">
+                        <MudSelectItem Value="ContentType.BlogPost">Blog Post</MudSelectItem>
+                        <MudSelectItem Value="ContentType.Tutorial">Tutorial</MudSelectItem>
+                        <MudSelectItem Value="ContentType.Article">Article</MudSelectItem>
+                        <MudSelectItem Value="ContentType.News">News</MudSelectItem>
+                        <MudSelectItem Value="ContentType.Review">Review</MudSelectItem>
+                        <MudSelectItem Value="ContentType.Opinion">Opinion</MudSelectItem>
+                    </MudSelect>
+
+                    <MudSelect @bind-Value="request.Style"
+                              Label="Writing Style"
+                              Variant="Variant.Outlined"
+                              Class="mb-4">
+                        <MudSelectItem Value="WritingStyle.Professional">Professional</MudSelectItem>
+                        <MudSelectItem Value="WritingStyle.Casual">Casual</MudSelectItem>
+                        <MudSelectItem Value="WritingStyle.Academic">Academic</MudSelectItem>
+                        <MudSelectItem Value="WritingStyle.Creative">Creative</MudSelectItem>
+                        <MudSelectItem Value="WritingStyle.Technical">Technical</MudSelectItem>
+                        <MudSelectItem Value="WritingStyle.Conversational">Conversational</MudSelectItem>
+                    </MudSelect>
+
+                    <MudTextField @bind-Value="request.TargetLength"
+                                 Label="Target Length (words)"
+                                 Variant="Variant.Outlined"
+                                 InputType="InputType.Number"
+                                 Class="mb-4" />
+
+                    <MudTextField @bind-Value="request.TargetAudience"
+                                 Label="Target Audience (Optional)"
+                                 Variant="Variant.Outlined"
+                                 Class="mb-4" />
+
+                    <MudCheckBox @bind-Value="request.IncludeImages" Class="mb-4">
+                        Include image suggestions
+                    </MudCheckBox>
+
+                    <MudCheckBox @bind-Value="request.IncludeCodeExamples" Class="mb-6">
+                        Include code examples
+                    </MudCheckBox>
+
+                    <MudButton Variant="Variant.Filled"
+                              Color="Color.Primary"
+                              FullWidth="true"
+                              Size="Size.Large"
+                              Disabled="@isGenerating"
+                              OnClick="GenerateContent">
+                        @if (isGenerating)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        }
+                        <MudIcon Icon="Icons.Material.Filled.AutoAwesome" Class="mr-2" />
+                        Generate Content
+                    </MudButton>
+                </MudForm>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            <MudCard Class="pa-6" Style="height: 600px; overflow-y: auto;">
+                @if (isGenerating)
+                {
+                    <div class="text-center py-8">
+                        <MudProgressCircular Size="Size.Large" Indeterminate="true" Class="mb-4" />
+                        <MudText Typo="Typo.h6">Generating your content...</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #666;">
+                            This may take a few moments
+                        </MudText>
+                    </div>
+                }
+                else if (generatedContent != null)
+                {
+                    <div class="mb-4">
+                        <MudText Typo="Typo.h5" Class="mb-2" Style="font-weight: 600;">
+                            @generatedContent.Title
+                        </MudText>
+                        <MudText Typo="Typo.body2" Style="color: #666;" Class="mb-4">
+                            @generatedContent.Excerpt
+                        </MudText>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            @foreach (var tag in generatedContent.SuggestedTags)
+                            {
+                                <MudChip Size="Size.Small" Color="Color.Primary">@tag</MudChip>
+                            }
+                        </div>
+                    </div>
+
+                    <MudDivider Class="my-4" />
+
+                    <div class="content-preview">
+                        @((MarkupString)generatedContent.GeneratedContent.Replace("\n", "<br/>"))
+                    </div>
+
+                    <MudDivider Class="my-4" />
+
+                    <div class="d-flex gap-2">
+                        <MudButton Variant="Variant.Filled"
+                                  Color="Color.Primary"
+                                  OnClick="CreatePost">
+                            <MudIcon Icon="Icons.Material.Filled.Save" Class="mr-2" />
+                            Create Post
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined"
+                                  Color="Color.Primary"
+                                  OnClick="RegenerateContent">
+                            <MudIcon Icon="Icons.Material.Filled.Refresh" Class="mr-2" />
+                            Regenerate
+                        </MudButton>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8">
+                        <MudIcon Icon="Icons.Material.Filled.Edit" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+                        <MudText Typo="Typo.h6" Class="mb-2">Ready to create amazing content?</MudText>
+                        <MudText Typo="Typo.body2" Style="color: #666;">
+                            Fill in the form on the left and click "Generate Content" to get started
+                        </MudText>
+                    </div>
+                }
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private MudForm form = new();
+    private bool isValid = true;
+    private ContentGenerationRequest request = new();
+    private ContentGenerationResponse? generatedContent;
+    private bool isGenerating = false;
+
+    private async Task GenerateContent()
+    {
+        if (!isValid) return;
+
+        isGenerating = true;
+        try
+        {
+            generatedContent = await AIContentService.GenerateContentAsync(request);
+            Snackbar.Add("Content generated successfully!", Severity.Success);
+        }
+        catch (Exception)
+        {
+            Snackbar.Add($"Error generating content. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            isGenerating = false;
+        }
+    }
+
+    private async Task CreatePost()
+    {
+        if (generatedContent == null) return;
+
+        try
+        {
+            var createRequest = new CreatePostRequest
+            {
+                Title = generatedContent.Title,
+                Excerpt = generatedContent.Excerpt,
+                Content = generatedContent.GeneratedContent,
+                Tags = generatedContent.SuggestedTags,
+                Categories = generatedContent.SuggestedCategories,
+                IsAIGenerated = true,
+                AIPrompt = request.Topic
+            };
+
+            var post = await BlogService.CreatePostAsync(createRequest);
+            Snackbar.Add("Post created successfully!", Severity.Success);
+            Navigation.NavigateTo($"/post/{post.Slug}");
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Failed to create post. Please try again.", Severity.Error);
+        }
+    }
+
+    private async Task RegenerateContent()
+    {
+        await GenerateContent();
+    }
+}
+
+<style>
+    .content-preview {
+        line-height: 1.6;
+        font-size: 16px;
+    }
+
+    .content-preview h1, .content-preview h2, .content-preview h3 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .content-preview h1 {
+        font-size: 24px;
+    }
+
+    .content-preview h2 {
+        font-size: 20px;
+    }
+
+    .content-preview h3 {
+        font-size: 18px;
+    }
+
+    .content-preview p {
+        margin-bottom: 16px;
+    }
+
+    .content-preview ul, .content-preview ol {
+        margin-bottom: 16px;
+        padding-left: 24px;
+    }
+
+    .content-preview code {
+        background-color: #f5f5f5;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .content-preview pre {
+        background-color: #f5f5f5;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 16px;
+    }
+</style>

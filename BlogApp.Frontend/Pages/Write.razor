@@ -1,0 +1,602 @@
+@page "/write"
+@attribute [Authorize]
+@inject IBlogService BlogService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject ILocalStorageService LocalStorage
+
+<PageTitle>Write - BlogApp</PageTitle>
+
+<div class="medium-write-container">
+    <div class="medium-write-editor">
+        <div class="medium-write-header">
+            <button class="medium-write-btn medium-write-back" @onclick="GoBack">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="medium-write-title-container">
+                <textarea class="medium-write-title-input" @bind="title" @bind:event="oninput" placeholder="Title"></textarea>
+            </div>
+            <div class="medium-write-actions">
+                <button class="medium-write-btn medium-write-publish" @onclick="PublishPost" disabled="@isPublishing">
+                    @if (isPublishing)
+                    {
+                        <span>Publishing...</span>
+                    }
+                    else
+                    {
+                        <span>Publish</span>
+                    }
+                </button>
+            </div>
+        </div>
+
+        <div class="medium-write-toolbar">
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("**", "**")' title="Bold">
+                <strong>B</strong>
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("*", "*")' title="Italic">
+                <em>I</em>
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("# ", "")' title="Heading">
+                H
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("* ", "")' title="List">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("1. ", "")' title="Numbered List">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="10" y1="6" x2="21" y2="6"/>
+                    <line x1="10" y1="12" x2="21" y2="12"/>
+                    <line x1="10" y1="18" x2="21" y2="18"/>
+                    <path d="M4 6h1M4 12h1M4 18h1"/>
+                </svg>
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("[", "](url)")' title="Link">
+                🔗
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("![", "](url)")' title="Image">
+                📷
+            </button>
+            <button class="medium-write-tool-btn" @onclick='() => InsertMarkdown("```", "```")' title="Code Block">
+                &lt;/&gt;
+            </button>
+            <div class="medium-write-tool-divider"></div>
+            <button class="medium-write-tool-btn medium-write-tool-save" @onclick="SaveDraft" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span>Saving...</span>
+                }
+                else
+                {
+                    <span>💾 Save</span>
+                }
+            </button>
+        </div>
+
+        @if (isPrefilledFromAI)
+        {
+            <div class="medium-ai-banner">
+                <span>AI generated draft loaded. Tweak anything before publishing.</span>
+                <button @onclick="() => isPrefilledFromAI = false">Dismiss</button>
+            </div>
+        }
+
+        <textarea class="medium-write-content" @bind="content" @bind:event="oninput" placeholder="Tell your story..."></textarea>
+
+        <div class="medium-write-footer">
+            <button class="medium-write-tags-btn" @onclick="ToggleTagsInput">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2H2v10l9.292 9.292a1 1 0 001.414 0L22 12V2H12z"/>
+                    <path d="M7 7h.01"/>
+                </svg>
+                Add tags
+            </button>
+            <button class="medium-write-image-btn" @onclick="ToggleImageInput">
+                📷 Add image
+            </button>
+        </div>
+
+        @if (showTagsInput)
+        {
+            <div class="medium-write-tags-input">
+                <input type="text" @bind="tagsInput" @bind:event="oninput" placeholder="Enter tags separated by commas" />
+                <button @onclick="AddTags">Add</button>
+            </div>
+            @if (tags.Any())
+            {
+                <div class="medium-write-tags-list">
+                    @foreach (var tag in tags)
+                    {
+                        <span class="medium-write-tag">
+                            #@tag
+                            <button class="medium-write-tag-remove" @onclick="() => RemoveTag(tag)">×</button>
+                        </span>
+                    }
+                </div>
+            }
+        }
+
+        @if (showImageInput)
+        {
+            <div class="medium-write-image-input">
+                <input type="text" @bind="featuredImageUrl" placeholder="Enter image URL" />
+                <button @onclick="AddImage">Add Image</button>
+            </div>
+        }
+    </div>
+
+    <div class="medium-write-sidebar">
+        <div class="medium-write-preview-title">Preview</div>
+        <div class="medium-write-preview">
+            @if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(content))
+            {
+                <p class="medium-write-preview-empty">Start writing to see your preview...</p>
+            }
+            else
+            {
+                <div class="medium-write-preview-content">
+                    @if (!string.IsNullOrEmpty(title))
+                    {
+                        <h1>@title</h1>
+                    }
+                    @if (!string.IsNullOrEmpty(featuredImageUrl))
+                    {
+                        <img src="@featuredImageUrl" alt="Featured" class="medium-write-preview-img" />
+                    }
+                    <div class="medium-write-preview-text">@content</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string title = string.Empty;
+    private string content = string.Empty;
+    private string featuredImageUrl = string.Empty;
+    private string tagsInput = string.Empty;
+    private List<string> tags = new();
+    private bool showTagsInput = false;
+    private bool showImageInput = false;
+    private bool isPublishing = false;
+    private bool isSaving = false;
+    private bool isPrefilledFromAI = false;
+    private User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await AuthService.GetCurrentUserAsync();
+        await LoadAiDraftAsync();
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private void InsertMarkdown(string before, string after)
+    {
+        content = $"{before}{content}{after}";
+    }
+
+    private void ToggleTagsInput()
+    {
+        showTagsInput = !showTagsInput;
+    }
+
+    private void ToggleImageInput()
+    {
+        showImageInput = !showImageInput;
+    }
+
+    private void AddTags()
+    {
+        if (!string.IsNullOrWhiteSpace(tagsInput))
+        {
+            var newTags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim())
+                .Where(t => !string.IsNullOrEmpty(t) && !tags.Contains(t, StringComparer.OrdinalIgnoreCase));
+
+            tags.AddRange(newTags);
+            tagsInput = string.Empty;
+        }
+    }
+
+    private void RemoveTag(string tag)
+    {
+        tags.Remove(tag);
+    }
+
+    private void AddImage()
+    {
+        showImageInput = false;
+    }
+
+    private async Task SaveDraft()
+    {
+        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(content))
+        {
+            Snackbar.Add("Please add a title and content", Severity.Warning);
+            return;
+        }
+
+        if (currentUser == null)
+        {
+            Snackbar.Add("Please sign in to save drafts", Severity.Warning);
+            return;
+        }
+
+        isSaving = true;
+        try
+        {
+            var request = new CreatePostRequest
+            {
+                Title = title,
+                Content = content,
+                Excerpt = GetExcerpt(),
+                FeaturedImageUrl = featuredImageUrl,
+                Tags = tags,
+                Visibility = PostVisibility.Public,
+                AuthorId = currentUser.Id
+            };
+
+            var post = await BlogService.CreatePostAsync(request);
+            Snackbar.Add("Draft saved!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving draft: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task PublishPost()
+    {
+        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(content))
+        {
+            Snackbar.Add("Please add a title and content", Severity.Warning);
+            return;
+        }
+
+        if (currentUser == null)
+        {
+            Snackbar.Add("Please sign in to publish", Severity.Warning);
+            return;
+        }
+
+        isPublishing = true;
+        try
+        {
+            var request = new CreatePostRequest
+            {
+                Title = title,
+                Content = content,
+                Excerpt = GetExcerpt(),
+                FeaturedImageUrl = featuredImageUrl,
+                Tags = tags,
+                Visibility = PostVisibility.Public,
+                AuthorId = currentUser.Id
+            };
+
+            var post = await BlogService.CreatePostAsync(request);
+            Snackbar.Add("Post published!", Severity.Success);
+            Navigation.NavigateTo($"/post/{post.Slug}");
+            isPrefilledFromAI = false;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error publishing post: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isPublishing = false;
+        }
+    }
+
+    private string GetExcerpt()
+    {
+        if (string.IsNullOrEmpty(content))
+            return string.Empty;
+
+        return content.Length > 300 ? content.Substring(0, 300) + "..." : content;
+    }
+
+    private async Task LoadAiDraftAsync()
+    {
+        if (!await LocalStorage.ContainKeyAsync("ai-draft"))
+            return;
+
+        var draft = await LocalStorage.GetItemAsync<AiDraft>("ai-draft");
+        await LocalStorage.RemoveItemAsync("ai-draft");
+
+        if (draft == null)
+            return;
+
+        title = draft.Title ?? title;
+        content = draft.Content ?? content;
+        featuredImageUrl = draft.FeaturedImageUrl ?? featuredImageUrl;
+        tags = draft.Tags?.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct(StringComparer.OrdinalIgnoreCase).ToList() ?? tags;
+        isPrefilledFromAI = true;
+
+        Snackbar.Add("AI generated draft loaded. Review and publish when ready!", Severity.Info);
+    }
+}
+<style>
+.medium-write-container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+.medium-write-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+.medium-write-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.medium-write-back {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: #666;
+}
+
+.medium-write-back:hover {
+    color: #000;
+}
+
+.medium-write-title-container {
+    flex: 1;
+}
+
+.medium-write-title-input {
+    width: 100%;
+    border: none;
+    font-size: 2rem;
+    font-weight: 700;
+    resize: none;
+    overflow: hidden;
+    min-height: 60px;
+}
+
+.medium-write-title-input:focus {
+    outline: none;
+}
+
+.medium-write-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.medium-write-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.medium-write-publish {
+    background: #1a8917;
+    color: #fff;
+}
+
+.medium-write-publish:hover:not(:disabled) {
+    background: #0f730c;
+}
+
+.medium-write-publish:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.medium-write-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.medium-write-tool-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    color: #666;
+}
+
+.medium-write-tool-btn:hover {
+    background: #f6f8fa;
+}
+
+.medium-write-tool-divider {
+    height: 20px;
+    width: 1px;
+    background: #e1e5e9;
+    margin: 0 0.5rem;
+}
+
+.medium-write-tool-save {
+    border: 1px solid #e1e5e9;
+    padding: 0.5rem 1rem;
+}
+
+.medium-write-content {
+    flex: 1;
+    padding: 2rem;
+    border: none;
+    font-size: 1.125rem;
+    line-height: 1.8;
+    resize: none;
+    font-family: Georgia, 'Times New Roman', serif;
+}
+
+.medium-write-content:focus {
+    outline: none;
+}
+
+.medium-write-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid #e1e5e9;
+}
+
+.medium-write-tags-btn,
+.medium-write-image-btn {
+    background: none;
+    border: 1px solid #e1e5e9;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.medium-write-tags-btn:hover,
+.medium-write-image-btn:hover {
+    background: #f6f8fa;
+}
+
+.medium-write-tags-input,
+.medium-write-image-input {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid #e1e5e9;
+}
+
+.medium-write-tags-input input,
+.medium-write-image-input input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+}
+
+.medium-write-tags-input button,
+.medium-write-image-input button {
+    padding: 0.5rem 1rem;
+    background: #1a8917;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.medium-write-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+}
+
+.medium-write-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: #f6f8fa;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    color: #1a8917;
+}
+
+.medium-write-tag-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1a8917;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.medium-write-sidebar {
+    width: 400px;
+    border-left: 1px solid #e1e5e9;
+    background: #fafafa;
+    overflow-y: auto;
+}
+
+.medium-write-preview-title {
+    padding: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.medium-write-preview {
+    padding: 2rem;
+}
+
+.medium-write-preview-empty {
+    color: #666;
+    text-align: center;
+}
+
+.medium-write-preview-content h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+}
+
+.medium-write-preview-img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.medium-write-preview-text {
+    white-space: pre-wrap;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.125rem;
+    line-height: 1.8;
+}
+
+.medium-ai-banner {
+    margin: 0 2rem;
+    padding: 0.75rem 1rem;
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    color: #065f46;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.medium-ai-banner button {
+    border: none;
+    background: transparent;
+    color: #047857;
+    cursor: pointer;
+    font-weight: 600;
+}
+</style>
+

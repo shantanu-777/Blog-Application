@@ -1,0 +1,114 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudText Typo="Typo.h6" Class="ml-3">
+            <MudLink Href="/" Class="text-decoration-none" Style="color: inherit;">
+                BlogApp
+            </MudLink>
+        </MudText>
+        <MudSpacer />
+        
+        @if (isAuthenticated)
+        {
+            <MudMenu Icon="Icons.Material.Filled.Person" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/profile"))">
+                    <MudIcon Icon="Icons.Material.Filled.Person" Class="mr-3" />
+                    Profile
+                </MudMenuItem>
+                <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/dashboard"))">
+                    <MudIcon Icon="Icons.Material.Filled.Dashboard" Class="mr-3" />
+                    Dashboard
+                </MudMenuItem>
+                <MudDivider />
+                <MudMenuItem OnClick="@Logout">
+                    <MudIcon Icon="Icons.Material.Filled.Logout" Class="mr-3" />
+                    Logout
+                </MudMenuItem>
+            </MudMenu>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="/login">
+                Login
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/register" Class="ml-2">
+                Sign Up
+            </MudButton>
+        }
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="Icons.Material.Filled.Home">
+                Home
+            </MudNavLink>
+            <MudNavLink Href="/trending" Icon="Icons.Material.Filled.TrendingUp">
+                Trending
+            </MudNavLink>
+            <MudNavLink Href="/search" Icon="Icons.Material.Filled.Search">
+                Search
+            </MudNavLink>
+            
+            @if (isAuthenticated)
+            {
+                <MudDivider Class="my-2" />
+                <MudNavGroup Text="Create" Icon="Icons.Material.Filled.Create" Expanded="true">
+                    <MudNavLink Href="/write" Icon="Icons.Material.Filled.Edit">
+                        Write Post
+                    </MudNavLink>
+                    <MudNavLink Href="/ai-write" Icon="Icons.Material.Filled.AutoAwesome">
+                        AI Write
+                    </MudNavLink>
+                </MudNavGroup>
+                
+                <MudDivider Class="my-2" />
+                <MudNavGroup Text="Manage" Icon="Icons.Material.Filled.Settings" Expanded="true">
+                    <MudNavLink Href="/my-posts" Icon="Icons.Material.Filled.Article">
+                        My Posts
+                    </MudNavLink>
+                    <MudNavLink Href="/reading-lists" Icon="Icons.Material.Filled.List">
+                        Reading Lists
+                    </MudNavLink>
+                    <MudNavLink Href="/challenges" Icon="Icons.Material.Filled.EmojiEvents">
+                        Challenges
+                    </MudNavLink>
+                </MudNavGroup>
+            }
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool isAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+    }
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        isAuthenticated = false;
+        Navigation.NavigateTo("/");
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "HMLvD5tkGw0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\user\\Downloads\\Blog Application\\BlogApp.Shared\\BlogApp.Shared.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

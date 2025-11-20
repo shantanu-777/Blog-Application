@@ -1,0 +1,330 @@
+@page "/create-post"
+@page "/edit-post/{PostId}"
+@attribute [Authorize]
+@using BlogApp.Shared.Models
+@using BlogApp.Frontend.Components
+@inject IBlogService BlogService
+@inject IUserService UserService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper Class="pa-8" Elevation="2">
+        <MudText Typo="Typo.h4" Class="mb-6">@(IsEdit ? "Edit Post" : "Create New Post")</MudText>
+        
+        <MudForm @ref="form" @bind-IsValid="@isValid" @bind-Errors="@errors">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="post.Title"
+                                 Label="Post Title"
+                                 Variant="Variant.Outlined"
+                                 Required="true"
+                                 RequiredError="Title is required"
+                                 MaxLength="200"
+                                 Counter="200" />
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="post.Excerpt"
+                                 Label="Excerpt"
+                                 Variant="Variant.Outlined"
+                                 Required="true"
+                                 RequiredError="Excerpt is required"
+                                 MaxLength="500"
+                                 Counter="500"
+                                 Lines="3" />
+                </MudItem>
+                
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="post.Slug"
+                                 Label="URL Slug"
+                                 Variant="Variant.Outlined"
+                                 HelperText="Leave empty to auto-generate from title"
+                                 @onblur="GenerateSlug" />
+                </MudItem>
+                
+                <MudItem xs="12" md="6">
+                    <MudSelect @bind-Value="post.Status"
+                              Label="Status"
+                              Variant="Variant.Outlined"
+                              T="PostStatus">
+                        <MudSelectItem Value="PostStatus.Draft">Draft</MudSelectItem>
+                        <MudSelectItem Value="PostStatus.Published">Published</MudSelectItem>
+                        <MudSelectItem Value="PostStatus.PendingReview">Pending Review</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="post.MetaDescription"
+                                 Label="Meta Description"
+                                 Variant="Variant.Outlined"
+                                 MaxLength="160"
+                                 Counter="160"
+                                 Lines="2"
+                                 HelperText="SEO description for search engines" />
+                </MudItem>
+                
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="post.MetaKeywords"
+                                 Label="Meta Keywords"
+                                 Variant="Variant.Outlined"
+                                 MaxLength="255"
+                                 Counter="255"
+                                 HelperText="Comma-separated keywords" />
+                </MudItem>
+                
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="post.FeaturedImageUrl"
+                                 Label="Featured Image URL"
+                                 Variant="Variant.Outlined"
+                                 HelperText="URL for the post's featured image" />
+                </MudItem>
+                
+                <MudItem xs="12" md="6">
+                    <MudDatePicker @bind-Date="scheduledDate"
+                                  Label="Schedule Post"
+                                  Variant="Variant.Outlined"
+                                  HelperText="Leave empty to publish immediately" />
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="categoriesInput"
+                                 Label="Categories"
+                                 Variant="Variant.Outlined"
+                                 HelperText="Comma-separated categories"
+                                 @onblur="UpdateCategories" />
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="tagsInput"
+                                 Label="Tags"
+                                 Variant="Variant.Outlined"
+                                 HelperText="Comma-separated tags"
+                                 @onblur="UpdateTags" />
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h6" Class="mb-2">Content</MudText>
+                    <RichTextEditor Content="@post.Content" 
+                                   ContentChanged="@OnContentChanged" />
+                </MudItem>
+                
+                <MudItem xs="12" Class="mt-4">
+                    <MudStack Row Justify="Justify.FlexEnd" Spacing="2">
+                        <MudButton Variant="Variant.Text" 
+                                  Color="Color.Secondary"
+                                  OnClick="SaveDraft">
+                            Save as Draft
+                        </MudButton>
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Primary"
+                                  OnClick="PublishPost"
+                                  Disabled="@(!isValid || isLoading)">
+                            @(IsEdit ? "Update Post" : "Publish Post")
+                        </MudButton>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter] public string? PostId { get; set; }
+    
+    private BlogPost post = new();
+    private MudForm form = new();
+    private bool isValid = true;
+    private string[] errors = { };
+    private bool isLoading = false;
+    private bool IsEdit => !string.IsNullOrEmpty(PostId);
+    
+    private string categoriesInput = string.Empty;
+    private string tagsInput = string.Empty;
+    private DateTime? scheduledDate;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEdit && !string.IsNullOrEmpty(PostId))
+        {
+            await LoadPost();
+        }
+        else
+        {
+            post.AuthorId = await GetCurrentUserId();
+        }
+    }
+    
+    private async Task LoadPost()
+    {
+        try
+        {
+            var loadedPost = await BlogService.GetPostAsync(PostId!);
+            if (loadedPost != null)
+            {
+                post = loadedPost;
+                categoriesInput = string.Join(", ", post.Categories ?? new List<string>());
+                tagsInput = string.Join(", ", post.Tags ?? new List<string>());
+                scheduledDate = post.ScheduledAt;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading post: {ex.Message}", Severity.Error);
+        }
+    }
+    
+    private async Task<string> GetCurrentUserId()
+    {
+        try
+        {
+            var user = await UserService.GetCurrentUserAsync();
+            return user?.Id ?? string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+    
+    private void OnContentChanged(string content)
+    {
+        post.Content = content;
+    }
+    
+    private void GenerateSlug()
+    {
+        if (string.IsNullOrEmpty(post.Slug) && !string.IsNullOrEmpty(post.Title))
+        {
+            post.Slug = GenerateSlugFromTitle(post.Title);
+        }
+    }
+    
+    private string GenerateSlugFromTitle(string title)
+    {
+        return title.ToLowerInvariant()
+                   .Replace(" ", "-")
+                   .Replace("'", "")
+                   .Replace("\"", "")
+                   .Replace("?", "")
+                   .Replace("!", "")
+                   .Replace(".", "")
+                   .Replace(",", "")
+                   .Replace(":", "")
+                   .Replace(";", "")
+                   .Replace("(", "")
+                   .Replace(")", "")
+                   .Replace("[", "")
+                   .Replace("]", "")
+                   .Replace("{", "")
+                   .Replace("}", "")
+                   .Replace("/", "-")
+                   .Replace("\\", "-")
+                   .Replace("&", "and")
+                   .Replace("@", "at")
+                   .Replace("#", "hash")
+                   .Replace("%", "percent")
+                   .Replace("+", "plus")
+                   .Replace("=", "equals")
+                   .Replace("|", "or")
+                   .Replace("<", "less")
+                   .Replace(">", "greater")
+                   .Replace("^", "caret")
+                   .Replace("~", "tilde")
+                   .Replace("`", "backtick")
+                   .Replace("$", "dollar")
+                   .Replace("*", "star")
+                   .Replace("_", "-")
+                   .Trim('-')
+                   .Trim();
+    }
+    
+    private void UpdateCategories()
+    {
+        post.Categories = categoriesInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(c => c.Trim())
+                                       .Where(c => !string.IsNullOrEmpty(c))
+                                       .ToList();
+    }
+    
+    private void UpdateTags()
+    {
+        post.Tags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(t => t.Trim())
+                            .Where(t => !string.IsNullOrEmpty(t))
+                            .ToList();
+    }
+    
+    private async Task SaveDraft()
+    {
+        post.Status = PostStatus.Draft;
+        await SavePost();
+    }
+    
+    private async Task PublishPost()
+    {
+        post.Status = PostStatus.Published;
+        post.PublishedAt = DateTime.UtcNow;
+        await SavePost();
+    }
+    
+    private async Task SavePost()
+    {
+        try
+        {
+            isLoading = true;
+            UpdateCategories();
+            UpdateTags();
+            
+            if (scheduledDate.HasValue)
+            {
+                post.ScheduledAt = scheduledDate.Value;
+            }
+            
+            if (IsEdit)
+            {
+                var updateRequest = new UpdatePostRequest
+                {
+                    Title = post.Title,
+                    Excerpt = post.Excerpt,
+                    Content = post.Content,
+                    FeaturedImageUrl = post.FeaturedImageUrl,
+                    Status = post.Status,
+                    Visibility = post.Visibility,
+                    Tags = post.Tags,
+                    Categories = post.Categories
+                };
+                var updatedPost = await BlogService.UpdatePostAsync(post.Id!, updateRequest);
+                Snackbar.Add("Post updated successfully!", Severity.Success);
+                Navigation.NavigateTo($"/post/{post.Slug}");
+            }
+            else
+            {
+                var createRequest = new CreatePostRequest
+                {
+                    Title = post.Title,
+                    Excerpt = post.Excerpt,
+                    Content = post.Content,
+                    FeaturedImageUrl = post.FeaturedImageUrl,
+                    Visibility = post.Visibility,
+                    Tags = post.Tags,
+                    Categories = post.Categories
+                };
+                var createdPost = await BlogService.CreatePostAsync(createRequest);
+                Snackbar.Add("Post created successfully!", Severity.Success);
+                Navigation.NavigateTo($"/post/{createdPost.Slug}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving post: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+

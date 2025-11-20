@@ -1,0 +1,542 @@
+@page "/post/{Slug}"
+@attribute [Authorize]
+@inject IBlogService BlogService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>@(post?.Title ?? "Post") - BlogApp</PageTitle>
+
+@if (isLoading)
+{
+    <div class="medium-page">
+        <div class="medium-post-skeleton" />
+    </div>
+}
+else if (post != null)
+{
+    <article class="medium-post-page">
+        <div class="medium-post-header">
+            <h1>@post.Title</h1>
+            @if (!string.IsNullOrEmpty(post.Excerpt))
+            {
+                <p class="medium-post-subtitle">@post.Excerpt</p>
+            }
+            <div class="medium-post-header-meta">
+                <div class="medium-post-author-info">
+                    @if (!string.IsNullOrEmpty(post.Author?.AvatarUrl))
+                    {
+                        <img src="@post.Author.AvatarUrl" alt="@post.Author.DisplayName" class="medium-post-author-avatar" />
+                    }
+                    <div>
+                        <a href="/profile/@post.Author?.Username" class="medium-post-author-name">
+                            @post.Author?.DisplayName
+                        </a>
+                        <span class="medium-post-date">@post.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                    </div>
+                </div>
+                <div class="medium-post-actions">
+                    <button class="medium-action-btn @(isLiked ? "liked" : "")" @onclick="ToggleLike" disabled="@isUpdatingLike">
+                        <span>💙</span> <span>@post.LikesCount</span>
+                    </button>
+                    <button class="medium-action-btn" @onclick="ToggleBookmark" disabled="@isUpdatingBookmark">
+                        <span>🔖</span>
+                    </button>
+                    <button class="medium-action-btn" @onclick="SharePost">
+                        <span>📤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+        {
+            <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-featured-image" />
+        }
+
+        <div class="medium-post-content">
+            @if (!string.IsNullOrEmpty(post.Content))
+            {
+                <div class="medium-post-body">@post.Content</div>
+            }
+            else
+            {
+                <div class="medium-post-body">
+                    <p>Welcome to BlogApp! This is a sample post demonstrating our beautiful design and user experience.</p>
+                    <p>You can write engaging content with our rich text editor and share your thoughts with the world.</p>
+                    <h2>Features</h2>
+                    <ul>
+                        <li>AI-powered content generation</li>
+                        <li>Rich text editing</li>
+                        <li>Beautiful, modern design</li>
+                        <li>Social interactions</li>
+                    </ul>
+                    <p>Start creating your own posts today!</p>
+                </div>
+            }
+        </div>
+
+        @if (post.Tags != null && post.Tags.Any())
+        {
+            <div class="medium-post-tags">
+                @foreach (var tag in post.Tags)
+                {
+                    <a href="/search?q=@tag" class="medium-tag">#@tag</a>
+                }
+            </div>
+        }
+
+        <div class="medium-post-footer">
+            <div class="medium-post-stats">
+                <span>@post.ReadingTimeMinutes min read</span>
+                <span>💙 @post.LikesCount likes</span>
+                <span>💬 @post.CommentsCount comments</span>
+            </div>
+        </div>
+    </article>
+
+    @if (isAuthenticated)
+    {
+        <div class="medium-page">
+            <div class="medium-comments-section">
+                <h2>Comments</h2>
+                <div class="medium-comment-form">
+                    <textarea class="medium-comment-input" @bind="newComment" placeholder="Write a comment..."></textarea>
+                    <button class="medium-btn medium-btn-primary" @onclick="AddComment" disabled="@isAddingComment">
+                        @if (isAddingComment)
+                        {
+                            <span>Posting...</span>
+                        }
+                        else
+                        {
+                            <span>Post Comment</span>
+                        }
+                    </button>
+                </div>
+
+                <div class="medium-comments-list">
+                    @if (comments.Any())
+                    {
+                        @foreach (var comment in comments)
+                        {
+                            <div class="medium-comment">
+                                <div class="medium-comment-header">
+                                    <div class="medium-comment-author">
+                                        @if (!string.IsNullOrEmpty(comment.Author?.AvatarUrl))
+                                        {
+                                            <img src="@comment.Author.AvatarUrl" alt="@comment.Author.DisplayName" class="medium-comment-avatar" />
+                                        }
+                                        <div>
+                                            <strong>@comment.Author?.DisplayName</strong>
+                                            <span class="medium-comment-date">@comment.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="medium-comment-content">
+                                    @comment.Content
+                                </div>
+                                <div class="medium-comment-actions">
+                                    <button class="medium-comment-action">Reply</button>
+                                    <button class="medium-comment-action">Like</button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="medium-no-comments">No comments yet. Be the first to comment!</p>
+                    }
+                </div>
+            </div>
+
+            <div class="medium-related-posts">
+                <h2>Related Posts</h2>
+                <div class="medium-posts-list">
+                    @foreach (var relatedPost in relatedPosts.Take(3))
+                    {
+                        <div class="medium-post-card" @onclick="() => NavigateToPost(relatedPost.Slug)">
+                            @if (!string.IsNullOrEmpty(relatedPost.FeaturedImageUrl))
+                            {
+                                <img src="@relatedPost.FeaturedImageUrl" alt="@relatedPost.Title" class="medium-post-img" />
+                            }
+                            <div class="medium-post-content">
+                                <h3>@relatedPost.Title</h3>
+                                <p class="medium-post-excerpt">@relatedPost.Excerpt</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="medium-page">
+        <div class="medium-empty-state">
+            <h2>Post not found</h2>
+            <p>The post you're looking for doesn't exist.</p>
+            <a href="/" class="medium-btn medium-btn-primary">Go Home</a>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private BlogPost? post;
+    private List<Comment> comments = new();
+    private List<BlogPost> relatedPosts = new();
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+    private bool isLiked = false;
+    private bool isUpdatingLike = false;
+    private bool isUpdatingBookmark = false;
+    private bool isAddingComment = false;
+    private string newComment = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        await LoadPost();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadPost();
+    }
+
+    private async Task LoadPost()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            post = await BlogService.GetPostBySlugAsync(Slug);
+            if (post != null)
+            {
+                comments = await BlogService.GetCommentsAsync(post.Id);
+                relatedPosts = await BlogService.GetRelatedPostsAsync(post.Id, 3);
+                if (isAuthenticated)
+                {
+                    isLiked = await BlogService.IsPostLikedAsync(post.Id);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // Use sample data
+            LoadSamplePost();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ToggleLike()
+    {
+        if (post == null || !isAuthenticated) return;
+
+        isUpdatingLike = true;
+        try
+        {
+            if (isLiked)
+            {
+                await BlogService.UnlikePostAsync(post.Id);
+                post.LikesCount--;
+            }
+            else
+            {
+                await BlogService.LikePostAsync(post.Id);
+                post.LikesCount++;
+            }
+            isLiked = !isLiked;
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isUpdatingLike = false;
+        }
+    }
+
+    private void ToggleBookmark()
+    {
+        // Implement bookmark functionality
+    }
+
+    private void SharePost()
+    {
+        // Implement share functionality
+        if (post != null)
+        {
+            Navigation.NavigateTo($"/share/{post.Slug}");
+        }
+    }
+
+    private async Task AddComment()
+    {
+        if (post == null || string.IsNullOrWhiteSpace(newComment)) return;
+
+        isAddingComment = true;
+        try
+        {
+            await BlogService.AddCommentAsync(post.Id, newComment);
+            comments = await BlogService.GetCommentsAsync(post.Id);
+            post.CommentsCount++;
+            newComment = string.Empty;
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isAddingComment = false;
+        }
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+
+    private void LoadSamplePost()
+    {
+        post = new BlogPost
+        {
+            Id = "1",
+            Title = "Sample Post",
+            Excerpt = "This is a sample excerpt",
+            Content = "<p>This is a sample post demonstrating the BlogApp interface.</p>",
+            FeaturedImageUrl = "/images/sample-post-1.jpg",
+            Author = new User { DisplayName = "John Doe", Username = "johndoe" },
+            CreatedAt = DateTime.Now.AddDays(-5),
+            ReadingTimeMinutes = 5,
+            Slug = Slug,
+            LikesCount = 42,
+            CommentsCount = 8
+        };
+    }
+}
+
+<style>
+.medium-post-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.medium-post-header {
+    margin-bottom: 2rem;
+}
+
+.medium-post-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.medium-post-subtitle {
+    font-size: 1.5rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.medium-post-header-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.medium-post-author-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.medium-post-author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.medium-post-author-name {
+    font-weight: 600;
+    color: #1a8917;
+    text-decoration: none;
+}
+
+.medium-post-author-name:hover {
+    text-decoration: underline;
+}
+
+.medium-post-date {
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.medium-post-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.medium-action-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e1e5e9;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.medium-action-btn:hover:not(:disabled) {
+    background: #f6f8fa;
+}
+
+.medium-action-btn.liked {
+    background: #fff5f5;
+    border-color: #ff4444;
+}
+
+.medium-post-featured-image {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    object-fit: cover;
+}
+
+.medium-post-content {
+    margin-bottom: 2rem;
+}
+
+.medium-post-body {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: #333;
+}
+
+.medium-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.medium-post-footer {
+    padding: 2rem 0;
+    border-top: 1px solid #eee;
+}
+
+.medium-post-stats {
+    display: flex;
+    gap: 2rem;
+    color: #666;
+}
+
+.medium-comments-section {
+    max-width: 800px;
+    margin: 4rem auto;
+}
+
+.medium-comment-form {
+    margin-bottom: 3rem;
+}
+
+.medium-comment-input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    min-height: 100px;
+}
+
+.medium-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.medium-comment {
+    padding: 1.5rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+.medium-comment-header {
+    margin-bottom: 1rem;
+}
+
+.medium-comment-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.medium-comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.medium-comment-date {
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.medium-comment-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+.medium-comment-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.medium-comment-action {
+    background: none;
+    border: none;
+    color: #1a8917;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.medium-comment-action:hover {
+    text-decoration: underline;
+}
+
+.medium-no-comments {
+    text-align: center;
+    color: #666;
+    padding: 3rem;
+}
+
+.medium-related-posts {
+    margin-top: 4rem;
+}
+
+.medium-related-posts h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+</style>
+

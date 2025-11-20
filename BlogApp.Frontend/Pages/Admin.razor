@@ -1,0 +1,678 @@
+@page "/admin"
+@inject IAdminService AdminService
+@inject ISnackbar Snackbar
+@inject IAuthService AuthService
+@using BlogApp.Shared.Models
+@using MudBlazor
+
+<div class="admin-dashboard px-4 py-4">
+    <MudText Typo="Typo.h4" Class="mb-2">Administration</MudText>
+    <MudText Typo="Typo.subtitle1" Class="mb-4 text-muted">
+        Real-time visibility into content, community, users, analytics, and site configuration.
+    </MudText>
+
+    @if (notAuthorized)
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Filled">
+            You need administrator access to view this page.
+        </MudAlert>
+    }
+    else if (isLoading)
+    {
+        <div class="d-flex justify-center align-center my-6">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="admin-spinner" />
+        </div>
+    }
+    else
+    {
+        <MudTabs Rounded="true">
+            <MudTabPanel Text="Overview">
+                @OverviewTab
+            </MudTabPanel>
+            <MudTabPanel Text="Moderation">
+                @ModerationTab
+            </MudTabPanel>
+            <MudTabPanel Text="Users">
+                @UsersTab
+            </MudTabPanel>
+            <MudTabPanel Text="Analytics">
+                @AnalyticsTab
+            </MudTabPanel>
+            <MudTabPanel Text="Settings">
+                @SettingsTab
+            </MudTabPanel>
+        </MudTabs>
+    }
+</div>
+
+@code {
+    private AdminDashboardMetrics? dashboard;
+    private AdminAnalyticsResponse? analytics;
+    private PagedResult<BlogPost>? postQueue;
+    private PagedResult<CommentModerationSummary>? commentQueue;
+    private PagedResult<UserAdminSummary>? users;
+    private SiteSettings settings = new();
+
+    private readonly Dictionary<string, string?> reviewNotes = new();
+    private readonly AdminPostFilter postFilter = new() { Status = PostStatus.PendingReview, PageSize = 10 };
+    private readonly AdminCommentFilter commentFilter = new() { FlaggedOnly = true, PageSize = 8 };
+    private readonly AdminUserFilter userFilter = new() { PageSize = 10 };
+
+    private string postSearch = string.Empty;
+    private string commentSearch = string.Empty;
+    private string userSearch = string.Empty;
+    private bool commentFlaggedOnly = true;
+    private bool commentPendingOnly;
+    private bool userActiveOnly;
+    private bool isLoading = true;
+    private bool moderationLoading;
+    private bool usersLoading;
+    private bool analyticsLoading;
+    private bool savingSettings;
+    private bool notAuthorized;
+    private int analyticsRange = 30;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user?.Role != UserRole.Admin)
+        {
+            notAuthorized = true;
+            isLoading = false;
+            return;
+        }
+
+        await LoadAllAsync();
+    }
+
+    private async Task LoadAllAsync()
+    {
+        dashboard = await AdminService.GetDashboardMetricsAsync();
+        settings = await AdminService.GetSiteSettingsAsync() ?? new SiteSettings();
+        analytics = await AdminService.GetAnalyticsAsync(analyticsRange);
+        await LoadModerationAsync();
+        await LoadUsersAsync();
+        commentFlaggedOnly = commentFilter.FlaggedOnly ?? true;
+        commentPendingOnly = commentFilter.PendingApprovalOnly ?? false;
+        userActiveOnly = userFilter.IsActive ?? false;
+        isLoading = false;
+    }
+
+    private async Task LoadModerationAsync()
+    {
+        moderationLoading = true;
+        postQueue = await AdminService.GetModerationPostsAsync(postFilter);
+        commentQueue = await AdminService.GetModerationCommentsAsync(commentFilter);
+        dashboard = await AdminService.GetDashboardMetricsAsync();
+        commentFlaggedOnly = commentFilter.FlaggedOnly ?? false;
+        commentPendingOnly = commentFilter.PendingApprovalOnly ?? false;
+        moderationLoading = false;
+    }
+
+    private async Task LoadUsersAsync()
+    {
+        usersLoading = true;
+        users = await AdminService.GetUsersAsync(userFilter);
+        userActiveOnly = userFilter.IsActive ?? false;
+        usersLoading = false;
+    }
+
+    private async Task LoadAnalyticsAsync()
+    {
+        analyticsLoading = true;
+        analytics = await AdminService.GetAnalyticsAsync(analyticsRange);
+        analyticsLoading = false;
+    }
+
+    private RenderFragment OverviewTab => (__builder) =>
+    {
+        <MudGrid Class="mb-4">
+            <MudItem xs="12" sm="6" md="3">@MetricCard("Total Posts", dashboard?.TotalPosts ?? 0, Icons.Material.Filled.Article)</MudItem>
+            <MudItem xs="12" sm="6" md="3">@MetricCard("Pending Posts", dashboard?.PendingPosts ?? 0, Icons.Material.Filled.PendingActions, Color.Warning)</MudItem>
+            <MudItem xs="12" sm="6" md="3">@MetricCard("Pending Comments", dashboard?.PendingComments ?? 0, Icons.Material.Filled.Comment, Color.Info)</MudItem>
+            <MudItem xs="12" sm="6" md="3">@MetricCard("Engagement", (int)((dashboard?.EngagementRate ?? 0) * 100), Icons.Material.Filled.AutoGraph, Color.Success, "%")</MudItem>
+        </MudGrid>;
+
+        <MudGrid GutterSize="GutterSize.Small">
+            <MudItem xs="12" md="7">
+                <MudPaper Class="p-4 mb-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Recent Activity</MudText>
+                    @if (dashboard?.PostTrends?.Any() == true)
+                    {
+                        <MudTable Items="dashboard.PostTrends" Dense="true">
+                            <HeaderContent>
+                                <MudTh>Date</MudTh>
+                                <MudTh class="text-center">Posts</MudTh>
+                                <MudTh class="text-center">Views</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Date.ToString("MMM dd")</MudTd>
+                                <MudTd Class="text-center">@context.Posts</MudTd>
+                                <MudTd Class="text-center">@context.Views</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No analytics data yet.</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="5">
+                <MudPaper Class="p-4 mb-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Latest Members</MudText>
+                    @if (dashboard?.LatestMembers?.Any() == true)
+                    {
+                        <MudList Dense="true">
+                            @foreach (var member in dashboard.LatestMembers)
+                            {
+                                <MudListItem>
+                                    <div class="d-flex flex-column w-100">
+                                        <MudText Typo="Typo.subtitle2">@member.DisplayName ?? member.Username</MudText>
+                                        <MudText Typo="Typo.caption">@member.Email</MudText>
+                                        <MudChip Color="Color.Primary" Size="Size.Small" Class="mt-1">@member.Role</MudChip>
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No new members yet.</MudText>
+                    }
+                </MudPaper>
+
+                <MudPaper Class="p-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Recent Flags</MudText>
+                    @if (dashboard?.RecentFlags?.Any() == true)
+                    {
+                        <MudList Dense="true">
+                            @foreach (var flag in dashboard.RecentFlags)
+                            {
+                                <MudListItem>
+                                    <div>
+                                        <MudText Typo="Typo.subtitle2">@flag.AuthorId</MudText>
+                                        <MudText Typo="Typo.body2">@flag.Content</MudText>
+                                        <MudText Typo="Typo.caption" Class="text-warning">@flag.FlagReason</MudText>
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No open flags.</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>;
+    };
+
+    private RenderFragment ModerationTab => (__builder) =>
+    {
+        <MudPaper Class="p-4 mb-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudSelect T="PostStatus?" Value="@postFilter.Status" ValueChanged="@(async (PostStatus? status) => await OnPostStatusChanged(status))" Label="Status" Dense="true" Variant="Variant.Text">
+                    <MudSelectItem Value="@((PostStatus?)null)">All</MudSelectItem>
+                    <MudSelectItem Value="@PostStatus.PendingReview">Pending Review</MudSelectItem>
+                    <MudSelectItem Value="@PostStatus.Draft">Draft</MudSelectItem>
+                    <MudSelectItem Value="@PostStatus.Published">Published</MudSelectItem>
+                </MudSelect>
+
+                <MudTextField @bind-Value="postSearch" Placeholder="Search posts" Variant="Variant.Outlined" Dense="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyPostFilterAsync">Apply</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" Disabled="@moderationLoading" OnClick="LoadModerationAsync">Refresh</MudButton>
+            </MudStack>
+        </MudPaper>
+
+        <MudGrid GutterSize="GutterSize.Small">
+            <MudItem xs="12" lg="7">
+                <MudPaper Class="p-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Posts Queue</MudText>
+                    @if (moderationLoading)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+                    }
+                    <MudTable Items="postQueue?.Items ?? new List<BlogPost>()" Dense="true">
+                        <HeaderContent>
+                            <MudTh>Title</MudTh>
+                            <MudTh>Status</MudTh>
+                            <MudTh>Notes</MudTh>
+                            <MudTh class="text-right">Actions</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>
+                                <MudText Typo="Typo.subtitle2">@context.Title</MudText>
+                                <MudText Typo="Typo.caption">@context.AuthorId</MudText>
+                            </MudTd>
+                            <MudTd>
+                                <MudChip Color="GetStatusColor(context.Status)" Size="Size.Small">@context.Status</MudChip>
+                            </MudTd>
+                            <MudTd>
+                                <MudTextField Value="GetReviewNote(context.Id)"
+                                              ValueChanged="@((string? value) => OnReviewNoteChanged(context.Id, value))"
+                                              Variant="Variant.Text"
+                                              Dense="true"
+                                              Placeholder="Add note" />
+                            </MudTd>
+                            <MudTd Class="text-right">
+                                <MudButton Size="Size.Small" Color="Color.Success" Variant="Variant.Filled" OnClick="() => ModeratePostAsync(context, PostStatus.Published)">
+                                    Publish
+                                </MudButton>
+                                <MudButton Size="Size.Small" Color="Color.Warning" Variant="Variant.Text" Class="ml-1" OnClick="() => ModeratePostAsync(context, PostStatus.Draft)">
+                                    Send Back
+                                </MudButton>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" lg="5">
+                <MudPaper Class="p-4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-3">
+                        <MudSwitch Value="@commentFlaggedOnly" ValueChanged="@(async (bool value) => await OnCommentFlaggedChanged(value))" Color="Color.Primary" Label="Flagged only" />
+                        <MudSwitch Value="@commentPendingOnly" ValueChanged="@(async (bool value) => await OnCommentPendingChanged(value))" Color="Color.Primary" Label="Pending approval" />
+                        <MudTextField @bind-Value="commentSearch" Placeholder="Search comments" Variant="Variant.Outlined" Dense="true" />
+                        <MudButton Variant="Variant.Text" OnClick="ApplyCommentFilterAsync">Apply</MudButton>
+                    </MudStack>
+                    @if (moderationLoading)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+                    }
+                    @if (commentQueue?.Items?.Any() == true)
+                    {
+                        <MudList Dense="true">
+                            @foreach (var comment in commentQueue.Items)
+                            {
+                                <MudListItem Class="mb-2">
+                                    <div class="d-flex flex-column w-100">
+                                        <MudText Typo="Typo.subtitle2">@comment.AuthorId</MudText>
+                                        <MudText Typo="Typo.body2">@comment.Content</MudText>
+                                        <MudText Typo="Typo.caption" Class="text-muted">@comment.CreatedAt.ToLocalTime().ToString("g")</MudText>
+                                        <div class="mt-2">
+                                            <MudButton Size="Size.Small" Color="Color.Success" Variant="Variant.Text" OnClick="() => ModerateCommentAsync(comment.Id, true, false)">Approve</MudButton>
+                                            <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Text" OnClick="() => ModerateCommentAsync(comment.Id, false, true)">Delete</MudButton>
+                                            <MudButton Size="Size.Small" Color="Color.Warning" Variant="Variant.Text" OnClick="() => ModerateCommentAsync(comment.Id, false, false)">Keep Flagged</MudButton>
+                                        </div>
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No comments require attention.</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    };
+
+    private RenderFragment UsersTab => (__builder) =>
+    {
+        <MudPaper Class="p-4 mb-3">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudTextField @bind-Value="userSearch" Placeholder="Search users" Variant="Variant.Outlined" Dense="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                <MudSelect T="UserRole?" Value="@userFilter.Role" ValueChanged="@(async (UserRole? role) => await OnUserRoleFilterChanged(role))" Dense="true" Label="Role" Variant="Variant.Text">
+                    <MudSelectItem Value="@((UserRole?)null)">All</MudSelectItem>
+                    <MudSelectItem Value="@UserRole.Reader">Reader</MudSelectItem>
+                    <MudSelectItem Value="@UserRole.Author">Author</MudSelectItem>
+                    <MudSelectItem Value="@UserRole.Editor">Editor</MudSelectItem>
+                    <MudSelectItem Value="@UserRole.Admin">Admin</MudSelectItem>
+                </MudSelect>
+                <MudSwitch Value="@userActiveOnly" ValueChanged="@(async (bool value) => await OnUserActiveChanged(value))" Color="Color.Primary" Label="Active only" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyUserFilterAsync">Apply</MudButton>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="p-4">
+            @if (usersLoading)
+            {
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+            }
+            <MudTable Items="users?.Items ?? new List<UserAdminSummary>()" Dense="true">
+                <HeaderContent>
+                    <MudTh>User</MudTh>
+                    <MudTh>Role</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Joined</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudText Typo="Typo.subtitle2">@context.DisplayName ?? context.Username</MudText>
+                        <MudText Typo="Typo.caption">@context.Email</MudText>
+                    </MudTd>
+                    <MudTd>
+                        <MudSelect T="UserRole" Value="@context.Role" ValueChanged="@(async (UserRole role) => await ChangeUserRoleAsync(context, role))" Dense="true" Variant="Variant.Text">
+                            <MudSelectItem Value="@UserRole.Reader">Reader</MudSelectItem>
+                            <MudSelectItem Value="@UserRole.Author">Author</MudSelectItem>
+                            <MudSelectItem Value="@UserRole.Editor">Editor</MudSelectItem>
+                            <MudSelectItem Value="@UserRole.Admin">Admin</MudSelectItem>
+                        </MudSelect>
+                    </MudTd>
+                    <MudTd>
+                        <MudSwitch Value="@context.IsActive" ValueChanged="@(async (bool value) => await ToggleUserStatusAsync(context, value))" Color="Color.Success" />
+                    </MudTd>
+                    <MudTd>@context.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudPaper>
+    };
+
+    private RenderFragment AnalyticsTab => (__builder) =>
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-3">
+            <MudSlider @bind-Value="analyticsRange" Min="7" Max="90" Step="7" Label="Range (days)" Immediate="true" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@analyticsLoading" OnClick="LoadAnalyticsAsync">
+                Refresh
+            </MudButton>
+        </MudStack>
+        @if (analyticsLoading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+        }
+        <MudGrid GutterSize="GutterSize.Small">
+            <MudItem xs="12" md="7">
+                <MudPaper Class="p-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Views Trend</MudText>
+                    @if (analytics?.ViewsTrend?.Any() == true)
+                    {
+                        <MudTable Items="analytics.ViewsTrend" Dense="true">
+                            <HeaderContent>
+                                <MudTh>Date</MudTh>
+                                <MudTh>Posts</MudTh>
+                                <MudTh>Views</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Date.ToString("MMM dd")</MudTd>
+                                <MudTd>@context.Posts</MudTd>
+                                <MudTd>@context.Views</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No analytics data.</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="5">
+                <MudPaper Class="p-4 mb-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Top Posts</MudText>
+                    @if (analytics?.TopPosts?.Any() == true)
+                    {
+                        <MudList Dense="true">
+                            @foreach (var post in analytics.TopPosts)
+                            {
+                                <MudListItem>
+                                    <div>
+                                        <MudText Typo="Typo.subtitle2">@post.Title</MudText>
+                                        <MudText Typo="Typo.caption">@post.Views views · @post.Likes likes · @post.Comments comments</MudText>
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No post engagement yet.</MudText>
+                    }
+                </MudPaper>
+                <MudPaper Class="p-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Category Breakdown</MudText>
+                    @if (analytics?.CategoryDistribution?.Any() == true)
+                    {
+                        @foreach (var category in analytics.CategoryDistribution)
+                        {
+                            <div class="mb-2">
+                                <MudText Typo="Typo.subtitle2">@category.Category (@category.Posts)</MudText>
+                                <MudProgressLinear Value="@GetCategoryPercentage(category.Posts)" Color="Color.Primary" />
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="text-muted">No categories recorded.</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    };
+
+    private RenderFragment SettingsTab => (__builder) =>
+    {
+        <MudPaper Class="p-4">
+            <MudText Typo="Typo.h6" Class="mb-3">Site Settings</MudText>
+            <EditForm Model="settings" OnValidSubmit="SaveSettingsAsync">
+                <DataAnnotationsValidator />
+                <MudGrid GutterSize="GutterSize.Small">
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.SiteTitle" Label="Site Title" Required="true" /></MudItem>
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.SiteUrl" Label="Site URL" Required="true" /></MudItem>
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.ContactEmail" Label="Contact Email" /></MudItem>
+                    <MudItem xs="12"><MudTextField @bind-Value="settings.SiteDescription" Label="Description" Lines="3" /></MudItem>
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.PrimaryColor" Label="Primary Color" /></MudItem>
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.SecondaryColor" Label="Secondary Color" /></MudItem>
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.ThemeColor" Label="Accent" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="settings.GoogleAnalyticsId" Label="Google Analytics ID" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="settings.FacebookPixelId" Label="Facebook Pixel ID" /></MudItem>
+                </MudGrid>
+                <MudGrid Class="mt-2">
+                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.AllowComments" Color="Color.Primary" Label="Allow Comments" /></MudItem>
+                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.RequireCommentApproval" Color="Color.Primary" Label="Require Approval" /></MudItem>
+                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.EnableNewsletter" Color="Color.Primary" Label="Newsletter" /></MudItem>
+                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.EnableSearch" Color="Color.Primary" Label="Search" /></MudItem>
+                </MudGrid>
+                <div class="d-flex justify-end mt-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="savingSettings" Type="Submit">
+                        @if (savingSettings)
+                        {
+                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                        }
+                        Save Settings
+                    </MudButton>
+                </div>
+            </EditForm>
+        </MudPaper>;
+    };
+
+    private RenderFragment MetricCard(string label, int value, string icon, Color color = Color.Primary, string suffix = "")
+        => builder =>
+        {
+            builder.OpenComponent<MudPaper>(0);
+            builder.AddAttribute(1, "Class", "p-3");
+            builder.AddAttribute(2, "ChildContent", (RenderFragment)(contentBuilder =>
+            {
+                contentBuilder.OpenComponent<MudStack>(3);
+                contentBuilder.AddAttribute(4, "Row", true);
+                contentBuilder.AddAttribute(5, "AlignItems", AlignItems.Center);
+                contentBuilder.AddAttribute(6, "Spacing", 1);
+                contentBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(stackBuilder =>
+                {
+                    stackBuilder.OpenComponent<MudIcon>(8);
+                    stackBuilder.AddAttribute(9, "Icon", icon);
+                    stackBuilder.AddAttribute(10, "Color", color);
+                    stackBuilder.AddAttribute(11, "Size", Size.Large);
+                    stackBuilder.CloseComponent();
+
+                    stackBuilder.OpenComponent<MudStack>(12);
+                    stackBuilder.AddAttribute(13, "Spacing", 0);
+                    stackBuilder.AddAttribute(14, "ChildContent", (RenderFragment)(textBuilder =>
+                    {
+                        textBuilder.OpenComponent<MudText>(15);
+                        textBuilder.AddAttribute(16, "Typo", Typo.body2);
+                        textBuilder.AddAttribute(17, "ChildContent", (RenderFragment)(textContent =>
+                            textContent.AddContent(18, label)));
+                        textBuilder.CloseComponent();
+
+                        textBuilder.OpenComponent<MudText>(19);
+                        textBuilder.AddAttribute(20, "Typo", Typo.h5);
+                        textBuilder.AddAttribute(21, "ChildContent", (RenderFragment)(textContent =>
+                            textContent.AddContent(22, $"{value:N0}{suffix}")));
+                        textBuilder.CloseComponent();
+                    }));
+                    stackBuilder.CloseComponent();
+                }));
+                contentBuilder.CloseComponent();
+            }));
+            builder.CloseComponent();
+        };
+
+    private async Task ApplyPostFilterAsync()
+    {
+        postFilter.Search = postSearch;
+        await LoadModerationAsync();
+    }
+
+    private async Task OnPostStatusChanged(PostStatus? status)
+    {
+        postFilter.Status = status;
+        await ApplyPostFilterAsync();
+    }
+
+    private async Task ApplyCommentFilterAsync()
+    {
+        commentFilter.Search = commentSearch;
+        commentFilter.FlaggedOnly = commentFlaggedOnly ? true : (bool?)null;
+        commentFilter.PendingApprovalOnly = commentPendingOnly ? true : (bool?)null;
+        await LoadModerationAsync();
+    }
+
+    private async Task OnCommentFlaggedChanged(bool value)
+    {
+        commentFlaggedOnly = value;
+        await ApplyCommentFilterAsync();
+    }
+
+    private async Task OnCommentPendingChanged(bool value)
+    {
+        commentPendingOnly = value;
+        await ApplyCommentFilterAsync();
+    }
+
+    private async Task ApplyUserFilterAsync()
+    {
+        userFilter.Search = userSearch;
+        userFilter.IsActive = userActiveOnly ? true : (bool?)null;
+        await LoadUsersAsync();
+    }
+
+    private async Task OnUserRoleFilterChanged(UserRole? role)
+    {
+        userFilter.Role = role;
+        await ApplyUserFilterAsync();
+    }
+
+    private async Task OnUserActiveChanged(bool value)
+    {
+        userActiveOnly = value;
+        await ApplyUserFilterAsync();
+    }
+
+    private async Task ModeratePostAsync(BlogPost post, PostStatus status)
+    {
+        var note = GetReviewNote(post.Id);
+        var success = await AdminService.UpdatePostStatusAsync(post.Id, status, note);
+        if (success)
+        {
+            Snackbar.Add($"Updated '{post.Title}'", Severity.Success);
+            await LoadModerationAsync();
+        }
+        else
+        {
+            Snackbar.Add("Unable to update post status.", Severity.Error);
+        }
+    }
+
+    private async Task ModerateCommentAsync(string commentId, bool approve, bool delete)
+    {
+        var request = new CommentModerationRequest { Approve = approve, Delete = delete };
+        var success = await AdminService.ModerateCommentAsync(commentId, request);
+        if (success)
+        {
+            Snackbar.Add("Comment moderation saved.", Severity.Success);
+            await LoadModerationAsync();
+        }
+        else
+        {
+            Snackbar.Add("Unable to moderate comment.", Severity.Error);
+        }
+    }
+
+    private async Task ChangeUserRoleAsync(UserAdminSummary user, UserRole newRole)
+    {
+        if (newRole == user.Role)
+            return;
+
+        var success = await AdminService.UpdateUserRoleAsync(user.Id, newRole);
+        if (success)
+        {
+            Snackbar.Add($"Updated {user.Username} to {newRole}", Severity.Success);
+            await LoadUsersAsync();
+        }
+        else
+        {
+            Snackbar.Add("Unable to update user role.", Severity.Error);
+        }
+    }
+
+    private async Task ToggleUserStatusAsync(UserAdminSummary user, bool newStatus)
+    {
+        if (newStatus == user.IsActive)
+            return;
+
+        var success = await AdminService.UpdateUserStatusAsync(user.Id, newStatus);
+        if (success)
+        {
+            user.IsActive = newStatus;
+            Snackbar.Add($"User {(newStatus ? "activated" : "deactivated")}.", Severity.Info);
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            Snackbar.Add("Unable to update user status.", Severity.Error);
+            await LoadUsersAsync();
+        }
+    }
+
+    private async Task SaveSettingsAsync()
+    {
+        savingSettings = true;
+        var updated = await AdminService.UpdateSiteSettingsAsync(settings);
+        savingSettings = false;
+
+        if (updated != null)
+        {
+            settings = updated;
+            Snackbar.Add("Site settings updated.", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Unable to save settings.", Severity.Error);
+        }
+    }
+
+    private string? GetReviewNote(string postId)
+        => reviewNotes.TryGetValue(postId, out var note) ? note : null;
+
+    private void OnReviewNoteChanged(string postId, string? value)
+    {
+        reviewNotes[postId] = value;
+    }
+
+    private Color GetStatusColor(PostStatus status) => status switch
+    {
+        PostStatus.Published => Color.Success,
+        PostStatus.PendingReview => Color.Warning,
+        PostStatus.Draft => Color.Info,
+        _ => Color.Default
+    };
+
+    private double GetCategoryPercentage(int value)
+    {
+        var total = analytics?.CategoryDistribution?.Sum(c => c.Posts) ?? 0;
+        if (total == 0) return 0;
+        return Math.Round(value * 100.0 / total, 2);
+    }
+}
+

@@ -1,0 +1,294 @@
+2025-11-18 20:50:32.659 +05:30 [INF] Now listening on: https://localhost:64240
+2025-11-18 20:50:32.699 +05:30 [INF] Now listening on: http://localhost:64241
+2025-11-18 20:50:32.703 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-18 20:50:32.704 +05:30 [INF] Hosting environment: Development
+2025-11-18 20:50:32.704 +05:30 [INF] Content root path: C:\Users\user\Downloads\Blog Application\BlogApp.Backend
+2025-11-18 20:52:01.886 +05:30 [INF] Application is shutting down...
+2025-11-18 20:52:24.201 +05:30 [INF] Now listening on: https://localhost:64240
+2025-11-18 20:52:24.228 +05:30 [INF] Now listening on: http://localhost:64241
+2025-11-18 20:52:24.233 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-18 20:52:24.234 +05:30 [INF] Hosting environment: Development
+2025-11-18 20:52:24.235 +05:30 [INF] Content root path: C:\Users\user\Downloads\Blog Application\BlogApp.Backend
+2025-11-18 20:52:32.285 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 20:52:32.355 +05:30 [INF] CORS policy execution successful.
+2025-11-18 20:52:32.366 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:52:32.394 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 20:52:32.461 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[BlogApp.Shared.Models.BlogPost, BlogApp.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-11-18 20:52:32.537 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 137.9922ms
+2025-11-18 20:52:32.544 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:52:32.546 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 200 null application/json; charset=utf-8 262.9925ms
+2025-11-18 20:53:40.858 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 20:53:40.865 +05:30 [INF] CORS policy execution successful.
+2025-11-18 20:53:40.867 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:53:40.868 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 20:53:40.875 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[BlogApp.Shared.Models.BlogPost, BlogApp.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-11-18 20:53:40.877 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 6.0613ms
+2025-11-18 20:53:40.878 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:53:40.879 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 200 null application/json; charset=utf-8 20.9005ms
+2025-11-18 20:55:22.246 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 20:55:22.257 +05:30 [INF] CORS policy execution successful.
+2025-11-18 20:55:22.258 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:55:22.260 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 20:55:22.267 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[BlogApp.Shared.Models.BlogPost, BlogApp.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-11-18 20:55:22.271 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 9.17ms
+2025-11-18 20:55:22.273 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:55:22.274 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 200 null application/json; charset=utf-8 28.4054ms
+2025-11-18 20:56:23.707 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 20:56:23.709 +05:30 [INF] CORS policy execution successful.
+2025-11-18 20:56:23.710 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:56:23.711 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 20:56:23.715 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[BlogApp.Shared.Models.BlogPost, BlogApp.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-11-18 20:56:23.720 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 6.6494ms
+2025-11-18 20:56:23.723 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 20:56:23.724 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 200 null application/json; charset=utf-8 16.3816ms
+2025-11-18 21:31:35.160 +05:30 [INF] Application is shutting down...
+2025-11-18 21:37:34.126 +05:30 [INF] Now listening on: https://localhost:64240
+2025-11-18 21:37:34.163 +05:30 [INF] Now listening on: http://localhost:64241
+2025-11-18 21:37:34.167 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-18 21:37:34.167 +05:30 [INF] Hosting environment: Development
+2025-11-18 21:37:34.168 +05:30 [INF] Content root path: C:\Users\user\Downloads\Blog Application\BlogApp.Backend
+2025-11-18 21:37:47.871 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 21:37:47.918 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:37:47.921 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:37:47.939 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:37:48.007 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=6&offset=0
+2025-11-18 21:37:48.013 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=6&offset=0
+2025-11-18 21:37:48.927 +05:30 [INF] Received HTTP response headers after 908.602ms - 404
+2025-11-18 21:37:48.934 +05:30 [INF] End processing HTTP request after 929.6025ms - 404
+2025-11-18 21:37:48.945 +05:30 [ERR] Error getting posts
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostsAsync(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 82
+   at BlogApp.Backend.Controllers.BlogController.GetPosts(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 80
+2025-11-18 21:37:49.030 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:37:49.050 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 1103.413ms
+2025-11-18 21:37:49.052 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:37:49.055 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 500 null application/json; charset=utf-8 1184.1589ms
+2025-11-18 21:38:08.771 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:64241/api/blog - null null
+2025-11-18 21:38:08.777 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:38:08.779 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:64241/api/blog - 204 null null 8.2791ms
+2025-11-18 21:38:08.783 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/blog - application/json; charset=utf-8 332
+2025-11-18 21:38:08.787 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:38:08.788 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:38:08.794 +05:30 [INF] Route matched with {action = "CreatePost", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.BlogPost]] CreatePost(BlogApp.Shared.Models.CreatePostRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:38:08.856 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&slug=eq.sample-blog-1&limit=1
+2025-11-18 21:38:08.859 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&slug=eq.sample-blog-1&limit=1
+2025-11-18 21:38:09.100 +05:30 [INF] Received HTTP response headers after 239.9432ms - 404
+2025-11-18 21:38:09.102 +05:30 [INF] End processing HTTP request after 245.85ms - 404
+2025-11-18 21:38:09.104 +05:30 [ERR] Error creating post
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostBySlugAsync(String slug) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 52
+   at BlogApp.Backend.Services.BlogService.GenerateUniqueSlugAsync(String title) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 251
+   at BlogApp.Backend.Services.BlogService.CreatePostAsync(CreatePostRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 23
+   at BlogApp.Backend.Controllers.BlogController.CreatePost(CreatePostRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 29
+2025-11-18 21:38:09.109 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:38:09.111 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend) in 314.4355ms
+2025-11-18 21:38:09.113 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:38:09.114 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/blog - 500 null application/json; charset=utf-8 331.4769ms
+2025-11-18 21:38:12.717 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/blog - application/json; charset=utf-8 332
+2025-11-18 21:38:12.720 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:38:12.722 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:38:12.722 +05:30 [INF] Route matched with {action = "CreatePost", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.BlogPost]] CreatePost(BlogApp.Shared.Models.CreatePostRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:38:12.725 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&slug=eq.sample-blog-1&limit=1
+2025-11-18 21:38:12.726 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&slug=eq.sample-blog-1&limit=1
+2025-11-18 21:38:13.555 +05:30 [INF] Received HTTP response headers after 827.8183ms - 404
+2025-11-18 21:38:13.556 +05:30 [INF] End processing HTTP request after 830.7631ms - 404
+2025-11-18 21:38:13.557 +05:30 [ERR] Error creating post
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostBySlugAsync(String slug) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 52
+   at BlogApp.Backend.Services.BlogService.GenerateUniqueSlugAsync(String title) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 251
+   at BlogApp.Backend.Services.BlogService.CreatePostAsync(CreatePostRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 23
+   at BlogApp.Backend.Controllers.BlogController.CreatePost(CreatePostRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 29
+2025-11-18 21:38:13.562 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:38:13.564 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend) in 839.9737ms
+2025-11-18 21:38:13.568 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:38:13.570 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/blog - 500 null application/json; charset=utf-8 853.2118ms
+2025-11-18 21:38:57.606 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:64241/api/aicontent/generate - null null
+2025-11-18 21:38:57.611 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:38:57.612 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:64241/api/aicontent/generate - 204 null null 5.2868ms
+2025-11-18 21:38:57.615 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/aicontent/generate - application/json; charset=utf-8 214
+2025-11-18 21:38:57.620 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:38:57.622 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.AIContentController.GenerateContent (BlogApp.Backend)'
+2025-11-18 21:38:57.626 +05:30 [INF] Route matched with {action = "GenerateContent", controller = "AIContent"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.AI.ContentGenerationResponse]] GenerateContent(BlogApp.Shared.Models.AI.ContentGenerationRequest) on controller BlogApp.Backend.Controllers.AIContentController (BlogApp.Backend).
+2025-11-18 21:38:57.676 +05:30 [INF] Start processing HTTP request POST https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyCBEYwc7T7yvzfUwfNUKMoem9PMGI4jH8A
+2025-11-18 21:38:57.678 +05:30 [INF] Sending HTTP request POST https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyCBEYwc7T7yvzfUwfNUKMoem9PMGI4jH8A
+2025-11-18 21:38:59.257 +05:30 [INF] Received HTTP response headers after 1577.9057ms - 404
+2025-11-18 21:38:59.260 +05:30 [INF] End processing HTTP request after 1583.3012ms - 404
+2025-11-18 21:38:59.267 +05:30 [ERR] Error generating AI content.
+System.Net.Http.HttpRequestException: Response status code does not indicate success: 404 (Not Found).
+   at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   at BlogApp.Backend.Services.AIContentService.GenerateContentAsync(ContentGenerationRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\AIContentService.cs:line 99
+2025-11-18 21:38:59.275 +05:30 [INF] Executing OkObjectResult, writing value of type 'BlogApp.Shared.Models.AI.ContentGenerationResponse'.
+2025-11-18 21:38:59.283 +05:30 [INF] Executed action BlogApp.Backend.Controllers.AIContentController.GenerateContent (BlogApp.Backend) in 1655.7744ms
+2025-11-18 21:38:59.286 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.AIContentController.GenerateContent (BlogApp.Backend)'
+2025-11-18 21:38:59.288 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/aicontent/generate - 200 null application/json; charset=utf-8 1672.2535ms
+2025-11-18 21:39:12.980 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:64241/api/blog - null null
+2025-11-18 21:39:12.984 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:39:12.986 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:64241/api/blog - 204 null null 5.0913ms
+2025-11-18 21:39:12.990 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/blog - application/json; charset=utf-8 374
+2025-11-18 21:39:12.992 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:39:12.993 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:39:12.994 +05:30 [INF] Route matched with {action = "CreatePost", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.BlogPost]] CreatePost(BlogApp.Shared.Models.CreatePostRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:39:13.000 +05:30 [INF] Executing BadRequestObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ValidationProblemDetails'.
+2025-11-18 21:39:13.023 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend) in 27.7849ms
+2025-11-18 21:39:13.025 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:39:13.026 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/blog - 400 null application/problem+json; charset=utf-8 35.4404ms
+2025-11-18 21:39:38.822 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog/trending?count=10 - null null
+2025-11-18 21:39:38.842 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:39:38.843 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetTrendingPosts (BlogApp.Backend)'
+2025-11-18 21:39:38.855 +05:30 [INF] Route matched with {action = "GetTrendingPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetTrendingPosts(Int32) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:39:38.868 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=likes_count.desc&limit=10&offset=0&status=eq.2
+2025-11-18 21:39:38.869 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=likes_count.desc&limit=10&offset=0&status=eq.2
+2025-11-18 21:39:40.093 +05:30 [INF] Received HTTP response headers after 1222.9316ms - 404
+2025-11-18 21:39:40.098 +05:30 [INF] End processing HTTP request after 1230.2166ms - 404
+2025-11-18 21:39:40.101 +05:30 [ERR] Error getting trending posts
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostsAsync(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 82
+   at BlogApp.Backend.Services.BlogService.GetTrendingPostsAsync(Int32 count) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 142
+   at BlogApp.Backend.Controllers.BlogController.GetTrendingPosts(Int32 count) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 236
+2025-11-18 21:39:40.106 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:39:40.110 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetTrendingPosts (BlogApp.Backend) in 1247.7318ms
+2025-11-18 21:39:40.112 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetTrendingPosts (BlogApp.Backend)'
+2025-11-18 21:39:40.113 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog/trending?count=10 - 500 null application/json; charset=utf-8 1290.7028ms
+2025-11-18 21:39:46.466 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?authorId=e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f - null null
+2025-11-18 21:39:46.470 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:39:46.471 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:39:46.472 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:39:46.475 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=10&offset=0&author_id=eq.e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f
+2025-11-18 21:39:46.476 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=10&offset=0&author_id=eq.e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f
+2025-11-18 21:39:46.726 +05:30 [INF] Received HTTP response headers after 248.3579ms - 404
+2025-11-18 21:39:46.726 +05:30 [INF] End processing HTTP request after 251.5979ms - 404
+2025-11-18 21:39:46.728 +05:30 [ERR] Error getting posts
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostsAsync(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 82
+   at BlogApp.Backend.Controllers.BlogController.GetPosts(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 80
+2025-11-18 21:39:46.729 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:39:46.730 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 256.1276ms
+2025-11-18 21:39:46.731 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:39:46.732 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?authorId=e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f - 500 null application/json; charset=utf-8 265.3404ms
+2025-11-18 21:39:46.735 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?authorId=e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f - null null
+2025-11-18 21:39:46.737 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:39:46.738 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:39:46.739 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:39:46.740 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=10&offset=0&author_id=eq.e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f
+2025-11-18 21:39:46.740 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=10&offset=0&author_id=eq.e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f
+2025-11-18 21:39:46.993 +05:30 [INF] Received HTTP response headers after 252.0963ms - 404
+2025-11-18 21:39:46.996 +05:30 [INF] End processing HTTP request after 255.7839ms - 404
+2025-11-18 21:39:46.998 +05:30 [ERR] Error getting posts
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostsAsync(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 82
+   at BlogApp.Backend.Controllers.BlogController.GetPosts(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 80
+2025-11-18 21:39:47.001 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:39:47.003 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 263.7369ms
+2025-11-18 21:39:47.005 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:39:47.007 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?authorId=e84c2b9a-dc85-4ff4-ab2b-5fe8c7865a3f - 500 null application/json; charset=utf-8 271.2223ms
+2025-11-18 21:39:54.104 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 21:39:54.106 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:39:54.106 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:39:54.107 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:39:54.109 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=6&offset=0
+2025-11-18 21:39:54.110 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=6&offset=0
+2025-11-18 21:39:54.381 +05:30 [INF] Received HTTP response headers after 269.7958ms - 404
+2025-11-18 21:39:54.384 +05:30 [INF] End processing HTTP request after 274.8424ms - 404
+2025-11-18 21:39:54.386 +05:30 [ERR] Error getting posts
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostsAsync(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 82
+   at BlogApp.Backend.Controllers.BlogController.GetPosts(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 80
+2025-11-18 21:39:54.388 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:39:54.390 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 281.543ms
+2025-11-18 21:39:54.391 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:39:54.392 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 500 null application/json; charset=utf-8 288.0999ms
+2025-11-18 21:44:54.184 +05:30 [INF] Application is shutting down...
+2025-11-18 21:45:23.574 +05:30 [INF] Now listening on: https://localhost:64240
+2025-11-18 21:45:23.635 +05:30 [INF] Now listening on: http://localhost:64241
+2025-11-18 21:45:23.640 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-11-18 21:45:23.641 +05:30 [INF] Hosting environment: Development
+2025-11-18 21:45:23.642 +05:30 [INF] Content root path: C:\Users\user\Downloads\Blog Application\BlogApp.Backend
+2025-11-18 21:45:32.656 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - null null
+2025-11-18 21:45:32.708 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:45:32.710 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:45:32.727 +05:30 [INF] Route matched with {action = "GetPosts", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.List`1[BlogApp.Shared.Models.BlogPost]]] GetPosts(BlogApp.Backend.Services.GetPostsRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:45:32.771 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=6&offset=0
+2025-11-18 21:45:32.776 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&order=created_at.desc&limit=6&offset=0
+2025-11-18 21:45:33.602 +05:30 [INF] Received HTTP response headers after 821.3879ms - 404
+2025-11-18 21:45:33.610 +05:30 [INF] End processing HTTP request after 843.5915ms - 404
+2025-11-18 21:45:33.619 +05:30 [ERR] Error getting posts
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostsAsync(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 82
+   at BlogApp.Backend.Controllers.BlogController.GetPosts(GetPostsRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 80
+2025-11-18 21:45:33.700 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:45:33.720 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend) in 986.8195ms
+2025-11-18 21:45:33.722 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.GetPosts (BlogApp.Backend)'
+2025-11-18 21:45:33.728 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:64241/api/blog?page=1&pageSize=6 - 500 null application/json; charset=utf-8 1074.8814ms
+2025-11-18 21:45:47.851 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:64241/api/blog - null null
+2025-11-18 21:45:47.857 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:45:47.859 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:64241/api/blog - 204 null null 8.0578ms
+2025-11-18 21:45:47.864 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/blog - application/json; charset=utf-8 327
+2025-11-18 21:45:47.868 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:45:47.869 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:45:47.873 +05:30 [INF] Route matched with {action = "CreatePost", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.BlogPost]] CreatePost(BlogApp.Shared.Models.CreatePostRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:45:47.925 +05:30 [INF] Start processing HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&slug=eq.sample-blog&limit=1
+2025-11-18 21:45:47.927 +05:30 [INF] Sending HTTP request GET https://blprbnewsuqkwdmaafcs.supabase.co/rest/v1/posts?select=*&slug=eq.sample-blog&limit=1
+2025-11-18 21:45:48.404 +05:30 [INF] Received HTTP response headers after 474.6398ms - 404
+2025-11-18 21:45:48.405 +05:30 [INF] End processing HTTP request after 480.2386ms - 404
+2025-11-18 21:45:48.407 +05:30 [ERR] Error creating post
+System.InvalidOperationException: Supabase REST request failed (NotFound): {"code":"PGRST205","details":null,"hint":null,"message":"Could not find the table 'public.posts' in the schema cache"}
+   at BlogApp.Backend.Services.SupabaseRestClient.EnsureSuccess(HttpResponseMessage response) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 99
+   at BlogApp.Backend.Services.SupabaseRestClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseRestClient.cs:line 38
+   at BlogApp.Backend.Services.SupabaseBlogRepository.GetPostBySlugAsync(String slug) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\SupabaseBlogRepository.cs:line 52
+   at BlogApp.Backend.Services.BlogService.GenerateUniqueSlugAsync(String title) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 251
+   at BlogApp.Backend.Services.BlogService.CreatePostAsync(CreatePostRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Services\BlogService.cs:line 23
+   at BlogApp.Backend.Controllers.BlogController.CreatePost(CreatePostRequest request) in C:\Users\user\Downloads\Blog Application\BlogApp.Backend\Controllers\BlogController.cs:line 29
+2025-11-18 21:45:48.412 +05:30 [INF] Executing ObjectResult, writing value of type '<>f__AnonymousType0`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-11-18 21:45:48.413 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend) in 537.9167ms
+2025-11-18 21:45:48.414 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:45:48.415 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/blog - 500 null application/json; charset=utf-8 550.3196ms
+2025-11-18 21:46:08.735 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:64241/api/aicontent/generate - null null
+2025-11-18 21:46:08.738 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:46:08.739 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:64241/api/aicontent/generate - 204 null null 4.2828ms
+2025-11-18 21:46:08.745 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/aicontent/generate - application/json; charset=utf-8 188
+2025-11-18 21:46:08.749 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:46:08.750 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.AIContentController.GenerateContent (BlogApp.Backend)'
+2025-11-18 21:46:08.754 +05:30 [INF] Route matched with {action = "GenerateContent", controller = "AIContent"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.AI.ContentGenerationResponse]] GenerateContent(BlogApp.Shared.Models.AI.ContentGenerationRequest) on controller BlogApp.Backend.Controllers.AIContentController (BlogApp.Backend).
+2025-11-18 21:46:08.790 +05:30 [INF] Start processing HTTP request POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyCBEYwc7T7yvzfUwfNUKMoem9PMGI4jH8A
+2025-11-18 21:46:08.791 +05:30 [INF] Sending HTTP request POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyCBEYwc7T7yvzfUwfNUKMoem9PMGI4jH8A
+2025-11-18 21:46:09.796 +05:30 [INF] Received HTTP response headers after 1003.7965ms - 404
+2025-11-18 21:46:09.799 +05:30 [INF] End processing HTTP request after 1008.8227ms - 404
+2025-11-18 21:46:09.800 +05:30 [ERR] Gemini request failed "NotFound": {
+  "error": {
+    "code": 404,
+    "message": "models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
+    "status": "NOT_FOUND"
+  }
+}
+
+2025-11-18 21:46:09.805 +05:30 [INF] Executing OkObjectResult, writing value of type 'BlogApp.Shared.Models.AI.ContentGenerationResponse'.
+2025-11-18 21:46:09.812 +05:30 [INF] Executed action BlogApp.Backend.Controllers.AIContentController.GenerateContent (BlogApp.Backend) in 1055.3195ms
+2025-11-18 21:46:09.813 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.AIContentController.GenerateContent (BlogApp.Backend)'
+2025-11-18 21:46:09.814 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/aicontent/generate - 200 null application/json; charset=utf-8 1069.2199ms
+2025-11-18 21:46:19.271 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:64241/api/blog - null null
+2025-11-18 21:46:19.273 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:46:19.274 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:64241/api/blog - 204 null null 2.7991ms
+2025-11-18 21:46:19.278 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:64241/api/blog - application/json; charset=utf-8 374
+2025-11-18 21:46:19.280 +05:30 [INF] CORS policy execution successful.
+2025-11-18 21:46:19.282 +05:30 [INF] Executing endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:46:19.283 +05:30 [INF] Route matched with {action = "CreatePost", controller = "Blog"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[BlogApp.Shared.Models.BlogPost]] CreatePost(BlogApp.Shared.Models.CreatePostRequest) on controller BlogApp.Backend.Controllers.BlogController (BlogApp.Backend).
+2025-11-18 21:46:19.285 +05:30 [INF] Executing BadRequestObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ValidationProblemDetails'.
+2025-11-18 21:46:19.298 +05:30 [INF] Executed action BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend) in 14.4054ms
+2025-11-18 21:46:19.300 +05:30 [INF] Executed endpoint 'BlogApp.Backend.Controllers.BlogController.CreatePost (BlogApp.Backend)'
+2025-11-18 21:46:19.301 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:64241/api/blog - 400 null application/problem+json; charset=utf-8 23.3289ms

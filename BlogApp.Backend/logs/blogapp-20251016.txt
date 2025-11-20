@@ -1,0 +1,6 @@
+2025-10-16 20:33:22.384 +05:30 [INF] User profile is available. Using 'C:\Users\user\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-10-16 20:33:23.304 +05:30 [INF] Now listening on: http://localhost:7000
+2025-10-16 20:33:23.307 +05:30 [INF] Now listening on: https://localhost:7001
+2025-10-16 20:33:23.389 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-10-16 20:33:23.392 +05:30 [INF] Hosting environment: Development
+2025-10-16 20:33:23.393 +05:30 [INF] Content root path: C:\Users\user\Downloads\Blog Application\BlogApp.Backend

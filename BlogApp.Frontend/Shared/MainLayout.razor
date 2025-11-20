@@ -1,0 +1,73 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+@using BlogApp.Shared.Models
+
+<div class="medium-navbar">
+    <div class="medium-navbar-content">
+        <a href="/" class="medium-logo">BlogApp</a>
+        <nav class="medium-nav">
+            <a href="/" class="medium-nav-link">Home</a>
+            <a href="/trending" class="medium-nav-link">Trending</a>
+            <a href="/search" class="medium-nav-link">Search</a>
+            @if (isAuthenticated)
+            {
+                <a href="/write" class="medium-nav-link">Write</a>
+                <a href="/ai-write" class="medium-nav-link">AI Write</a>
+                <a href="/profile" class="medium-nav-link">Profile</a>
+                @if (isAdmin)
+                {
+                    <a href="/admin" class="medium-nav-link">Admin</a>
+                }
+                <button class="medium-nav-link medium-logout-btn" @onclick="Logout">Logout</button>
+            }
+            else
+            {
+                <a href="/login" class="medium-nav-link">Login</a>
+                <a href="/register" class="medium-nav-link medium-nav-link-accent">Sign Up</a>
+            }
+        </nav>
+    </div>
+</div>
+
+<main>
+    @Body
+</main>
+
+@code {
+    private bool isAuthenticated;
+    private bool isAdmin;
+    private User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.AuthenticationStateChanged += HandleAuthStateChanged;
+        await RefreshUserStateAsync();
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/");
+    }
+
+    private async Task RefreshUserStateAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        currentUser = isAuthenticated ? await AuthService.GetCurrentUserAsync() : null;
+        isAdmin = currentUser?.Role == UserRole.Admin;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleAuthStateChanged(bool _ignored)
+    {
+        _ = InvokeAsync(RefreshUserStateAsync);
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthenticationStateChanged -= HandleAuthStateChanged;
+    }
+}

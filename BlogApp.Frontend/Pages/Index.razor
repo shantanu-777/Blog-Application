@@ -1,0 +1,204 @@
+@page "/"
+@inject IBlogService BlogService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>BlogApp - The Future of Blogging</PageTitle>
+
+<div class="medium-hero">
+    <h1>Welcome to BlogApp</h1>
+    <p class="medium-hero-desc">The most advanced blogging platform with AI-powered content creation</p>
+    <div class="medium-hero-actions">
+        @if (isAuthenticated)
+        {
+            <a href="/write" class="medium-btn medium-btn-primary">Write Post</a>
+            <a href="/ai-write" class="medium-btn medium-btn-outline">AI Write</a>
+        }
+        else
+        {
+            <a href="/register" class="medium-btn medium-btn-primary">Get Started</a>
+            <a href="/login" class="medium-btn medium-btn-outline">Sign In</a>
+        }
+    </div>
+</div>
+
+<div class="medium-features">
+    <h2>Why Choose BlogApp?</h2>
+    <div class="medium-features-list">
+        <div class="medium-feature">
+            <h3>AI-Powered Writing</h3>
+            <p>Generate high-quality content with our advanced AI technology</p>
+        </div>
+        <div class="medium-feature">
+            <h3>Collaboration</h3>
+            <p>Work together with other writers in collaborative spaces</p>
+        </div>
+        <div class="medium-feature">
+            <h3>Smart Analytics</h3>
+            <p>Get insights into your content performance and reader engagement</p>
+        </div>
+    </div>
+</div>
+
+<div class="medium-posts">
+    <div class="medium-posts-header">
+        <h2>Latest Posts</h2>
+        <a href="/trending" class="medium-link">View All</a>
+    </div>
+    <div class="medium-posts-list">
+        @if (isLoading)
+        {
+            <div class="medium-post-skeleton" />
+            <div class="medium-post-skeleton" />
+            <div class="medium-post-skeleton" />
+        }
+        else
+        {
+            @foreach (var post in samplePosts.Take(6))
+            {
+                <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                    @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                    {
+                        <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                    }
+                    <div class="medium-post-content">
+                        <h3>@post.Title</h3>
+                        <p class="medium-post-excerpt">@post.Excerpt</p>
+                        <div class="medium-post-meta">
+                            <span>@post.Author?.DisplayName • @post.CreatedAt.ToString("MMM dd")</span>
+                            <span>@post.ReadingTimeMinutes min read</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<BlogPost> posts = new();
+    private List<BlogPost> samplePosts = new();
+    private bool isLoading = true;
+    private bool isAuthenticated = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isAuthenticated = await AuthService.IsAuthenticatedAsync();
+            await LoadPosts();
+            LoadSamplePosts();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadPosts()
+    {
+        try
+        {
+            posts = await BlogService.GetPostsAsync(1, 6);
+        }
+        catch (Exception)
+        {
+            // Handle error - use sample posts instead
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void LoadSamplePosts()
+    {
+        samplePosts = new List<BlogPost>
+        {
+            new BlogPost
+            {
+                Id = "1",
+                Title = "The Future of AI in Content Creation",
+                Excerpt = "Exploring how artificial intelligence is revolutionizing the way we create and consume content in the digital age.",
+                FeaturedImageUrl = "/images/sample-post-1.jpg",
+                Author = new User { DisplayName = "Sarah Chen", Username = "sarahchen" },
+                CreatedAt = DateTime.Now.AddDays(-2),
+                ReadingTimeMinutes = 5,
+                Slug = "future-ai-content-creation",
+                LikesCount = 42,
+                CommentsCount = 8
+            },
+            new BlogPost
+            {
+                Id = "2",
+                Title = "Building Scalable Web Applications",
+                Excerpt = "A comprehensive guide to creating web applications that can handle millions of users with ease.",
+                FeaturedImageUrl = "/images/sample-post-2.jpg",
+                Author = new User { DisplayName = "Alex Rodriguez", Username = "alexrod" },
+                CreatedAt = DateTime.Now.AddDays(-5),
+                ReadingTimeMinutes = 8,
+                Slug = "building-scalable-web-apps",
+                LikesCount = 67,
+                CommentsCount = 12
+            },
+            new BlogPost
+            {
+                Id = "3",
+                Title = "The Art of Minimalist Design",
+                Excerpt = "How less can be more when it comes to creating beautiful, functional user interfaces.",
+                FeaturedImageUrl = "/images/sample-post-3.jpg",
+                Author = new User { DisplayName = "Emma Wilson", Username = "emmawilson" },
+                CreatedAt = DateTime.Now.AddDays(-7),
+                ReadingTimeMinutes = 6,
+                Slug = "art-minimalist-design",
+                LikesCount = 89,
+                CommentsCount = 15
+            },
+            new BlogPost
+            {
+                Id = "4",
+                Title = "Remote Work: The New Normal",
+                Excerpt = "Insights into how remote work is reshaping company culture and productivity.",
+                FeaturedImageUrl = "/images/sample-post-1.jpg",
+                Author = new User { DisplayName = "Michael Brown", Username = "michaelb" },
+                CreatedAt = DateTime.Now.AddDays(-10),
+                ReadingTimeMinutes = 7,
+                Slug = "remote-work-new-normal",
+                LikesCount = 34,
+                CommentsCount = 6
+            },
+            new BlogPost
+            {
+                Id = "5",
+                Title = "Sustainable Technology Solutions",
+                Excerpt = "How tech companies are leading the charge in environmental responsibility.",
+                FeaturedImageUrl = "/images/sample-post-2.jpg",
+                Author = new User { DisplayName = "Lisa Zhang", Username = "lisazhang" },
+                CreatedAt = DateTime.Now.AddDays(-12),
+                ReadingTimeMinutes = 9,
+                Slug = "sustainable-tech-solutions",
+                LikesCount = 56,
+                CommentsCount = 11
+            },
+            new BlogPost
+            {
+                Id = "6",
+                Title = "The Psychology of User Experience",
+                Excerpt = "Understanding what makes users tick and how to design for human behavior.",
+                FeaturedImageUrl = "/images/sample-post-3.jpg",
+                Author = new User { DisplayName = "David Kim", Username = "davidkim" },
+                CreatedAt = DateTime.Now.AddDays(-15),
+                ReadingTimeMinutes = 6,
+                Slug = "psychology-user-experience",
+                LikesCount = 78,
+                CommentsCount = 19
+            }
+        };
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+}
+

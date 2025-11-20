@@ -1,0 +1,31 @@
+using BlogApp.Shared.Models;
+
+namespace BlogApp.Frontend.Services;
+
+public interface IUserService
+{
+    Task<User?> GetUserAsync(string id);
+    Task<User> UpdateUserAsync(string id, UpdateUserRequest request);
+    Task<bool> FollowUserAsync(string userId);
+    Task<bool> UnfollowUserAsync(string userId);
+    Task<List<User>> GetFollowersAsync(string userId);
+    Task<List<User>> GetFollowingAsync(string userId);
+    Task<List<User>> SearchUsersAsync(string query, int page = 1, int pageSize = 10);
+    Task<List<User>> GetSuggestedUsersAsync(string userId, int count = 10);
+    Task<User?> GetCurrentUserAsync();
+    Task<User?> GetUserByUsernameAsync(string username);
+    Task<bool> IsFollowingAsync(string followerId, string followingId);
+    Task<bool> FollowUserAsync(string currentUserId, string userIdToFollow);
+    Task<bool> UnfollowUserAsync(string currentUserId, string userIdToUnfollow);
+}
+
+public class UpdateUserRequest
+{
+    public string? DisplayName { get; set; }
+    public string? Bio { get; set; }
+    public string? Website { get; set; }
+    public string? Twitter { get; set; }
+    public string? LinkedIn { get; set; }
+    public string? GitHub { get; set; }
+    public string? AvatarUrl { get; set; }
+}

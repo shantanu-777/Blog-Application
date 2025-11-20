@@ -1,0 +1,193 @@
+@using Blazored.TextEditor
+@using Markdig
+@inject IJSRuntime JSRuntime
+
+<div class="rich-text-editor">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+        <MudTabPanel Text="Write">
+            <div class="editor-container">
+                <BlazoredTextEditor @bind-Content="Content" 
+                                   Placeholder="Start writing your blog post..."
+                                   Theme="Bubble"
+                                   Toolbar="Bubble"
+                                   Height="400px">
+                    <ToolbarContent>
+                        <select class="ql-header" value="1">
+                            <option value="1">Heading 1</option>
+                            <option value="2">Heading 2</option>
+                            <option value="3">Heading 3</option>
+                            <option value="4">Heading 4</option>
+                            <option value="5">Heading 5</option>
+                            <option value="6">Heading 6</option>
+                            <option value="">Normal</option>
+                        </select>
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                        <button class="ql-blockquote"></button>
+                        <button class="ql-code-block"></button>
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                        <button class="ql-link"></button>
+                        <button class="ql-image"></button>
+                        <button class="ql-video"></button>
+                    </ToolbarContent>
+                </BlazoredTextEditor>
+            </div>
+        </MudTabPanel>
+        <MudTabPanel Text="Preview">
+            <div class="preview-container">
+                <div class="preview-content" @ref="previewElement">
+                    @((MarkupString)PreviewHtml)
+                </div>
+            </div>
+        </MudTabPanel>
+        <MudTabPanel Text="Markdown">
+            <div class="markdown-container">
+                <MudTextField @bind-Value="Content" 
+                             Variant="Variant.Outlined" 
+                             Lines="20" 
+                             Placeholder="Markdown content will appear here..."
+                             ReadOnly="true" />
+            </div>
+        </MudTabPanel>
+    </MudTabs>
+</div>
+
+@code {
+    [Parameter] public string Content { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ContentChanged { get; set; }
+    
+    private ElementReference previewElement;
+    private string PreviewHtml => Markdown.ToHtml(Content ?? string.Empty);
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeEditor");
+        }
+    }
+    
+    private async Task OnContentChanged(string newContent)
+    {
+        Content = newContent;
+        await ContentChanged.InvokeAsync(Content);
+    }
+}
+
+<style>
+    .rich-text-editor {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .editor-container {
+        padding: 16px;
+    }
+    
+    .preview-container {
+        padding: 16px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .preview-content {
+        font-family: 'Georgia', serif;
+        line-height: 1.6;
+        color: #333;
+    }
+    
+    .preview-content h1, .preview-content h2, .preview-content h3,
+    .preview-content h4, .preview-content h5, .preview-content h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+    
+    .preview-content h1 { font-size: 2em; border-bottom: 1px solid #eaecef; padding-bottom: 10px; }
+    .preview-content h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: 10px; }
+    .preview-content h3 { font-size: 1.25em; }
+    .preview-content h4 { font-size: 1em; }
+    .preview-content h5 { font-size: 0.875em; }
+    .preview-content h6 { font-size: 0.85em; color: #6a737d; }
+    
+    .preview-content p {
+        margin-bottom: 16px;
+    }
+    
+    .preview-content blockquote {
+        padding: 0 1em;
+        color: #6a737d;
+        border-left: 0.25em solid #dfe2e5;
+        margin: 0 0 16px 0;
+    }
+    
+    .preview-content code {
+        padding: 0.2em 0.4em;
+        margin: 0;
+        font-size: 85%;
+        background-color: rgba(27,31,35,0.05);
+        border-radius: 3px;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    
+    .preview-content pre {
+        padding: 16px;
+        overflow: auto;
+        font-size: 85%;
+        line-height: 1.45;
+        background-color: #f6f8fa;
+        border-radius: 3px;
+        margin-bottom: 16px;
+    }
+    
+    .preview-content pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+    
+    .preview-content ul, .preview-content ol {
+        padding-left: 2em;
+        margin-bottom: 16px;
+    }
+    
+    .preview-content li {
+        margin-bottom: 4px;
+    }
+    
+    .preview-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 16px 0;
+    }
+    
+    .preview-content a {
+        color: #0366d6;
+        text-decoration: none;
+    }
+    
+    .preview-content a:hover {
+        text-decoration: underline;
+    }
+    
+    .markdown-container {
+        padding: 16px;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+

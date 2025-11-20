@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "BlogApp.Frontend": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5001",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_DETAILEDERRORS": "true",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Server.Kestrel"
+      },
+      "hotReloadProfile": "blazor"
+    }
+  }
+}

@@ -1,0 +1,337 @@
+@page "/search"
+@attribute [Authorize]
+
+<PageTitle>Search - BlogApp</PageTitle>
+
+<div class="medium-page">
+    <div class="medium-search-header">
+        <h1>Search Posts</h1>
+        <div class="medium-search-box">
+            <input type="text" class="medium-search-input" @bind="searchQuery" @bind:event="oninput" 
+                   placeholder="Search for articles, authors, topics..." @onkeypress="HandleKeyPress" />
+            <button class="medium-search-btn" @onclick="PerformSearch">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="medium-search-icon">
+                    <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    @if (string.IsNullOrEmpty(lastSearchQuery))
+    {
+        <div class="medium-search-suggestions">
+            <h2>Popular Searches</h2>
+            <div class="medium-tags">
+                <button class="medium-tag" @onclick='() => SearchForQuery("artificial intelligence")'>AI</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("web development")'>Web Development</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("design")'>Design</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("programming")'>Programming</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("technology")'>Technology</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("business")'>Business</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("productivity")'>Productivity</button>
+                <button class="medium-tag" @onclick='() => SearchForQuery("startup")'>Startup</button>
+            </div>
+
+            <h2>Browse by Category</h2>
+            <div class="medium-categories">
+                <div class="medium-category-card" @onclick='() => SearchForCategory("Technology")'>
+                    <h3>Technology</h3>
+                    <p>Latest in tech</p>
+                </div>
+                <div class="medium-category-card" @onclick='() => SearchForCategory("Design")'>
+                    <h3>Design</h3>
+                    <p>UI/UX and more</p>
+                </div>
+                <div class="medium-category-card" @onclick='() => SearchForCategory("Business")'>
+                    <h3>Business</h3>
+                    <p>Entrepreneurship</p>
+                </div>
+                <div class="medium-category-card" @onclick='() => SearchForCategory("Programming")'>
+                    <h3>Programming</h3>
+                    <p>Code & tutorials</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="medium-search-results">
+            @if (isSearching)
+            {
+                <div class="medium-search-loading">
+                    <p>Searching for "@lastSearchQuery"...</p>
+                </div>
+            }
+            else if (searchResults.Any())
+            {
+                <div class="medium-results-header">
+                    <h2>Found @searchResults.Count results for "@lastSearchQuery"</h2>
+                </div>
+                <div class="medium-posts-list">
+                    @foreach (var post in searchResults)
+                    {
+                        <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                            @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                            {
+                                <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                            }
+                            <div class="medium-post-content">
+                                <h3>@post.Title</h3>
+                                <p class="medium-post-excerpt">@post.Excerpt</p>
+                                <div class="medium-post-meta">
+                                    <div class="medium-post-author">
+                                        @if (post.Author?.AvatarUrl != null)
+                                        {
+                                            <img src="@post.Author.AvatarUrl" alt="@post.Author.DisplayName" class="medium-avatar" />
+                                        }
+                                        <div>
+                                            <span>@post.Author?.DisplayName</span>
+                                            <span class="medium-post-date">@post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                    </div>
+                                    <div class="medium-post-stats">
+                                        <span>💙 @post.LikesCount</span>
+                                        <span>💬 @post.CommentsCount</span>
+                                        <span>⏱️ @post.ReadingTimeMinutes min</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="medium-empty-state">
+                    <h2>No results found</h2>
+                    <p>Try different keywords or browse our popular posts</p>
+                    <button class="medium-btn medium-btn-outline" @onclick="ClearSearch">Clear Search</button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Inject] IBlogService BlogService { get; set; } = null!;
+    [Inject] NavigationManager Navigation { get; set; } = null!;
+
+    private string searchQuery = string.Empty;
+    private string lastSearchQuery = string.Empty;
+    private bool isSearching = false;
+    private List<BlogPost> searchResults = new();
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+            return;
+
+        lastSearchQuery = searchQuery;
+        isSearching = true;
+        StateHasChanged();
+
+        try
+        {
+            searchResults = await BlogService.SearchPostsAsync(searchQuery, 1, 20);
+        }
+        catch (Exception)
+        {
+            // Use sample results if backend fails
+            LoadSampleResults();
+        }
+        finally
+        {
+            isSearching = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SearchForQuery(string query)
+    {
+        searchQuery = query;
+        await PerformSearch();
+    }
+
+    private async Task SearchForCategory(string category)
+    {
+        searchQuery = category;
+        await PerformSearch();
+    }
+
+    private void ClearSearch()
+    {
+        searchQuery = string.Empty;
+        lastSearchQuery = string.Empty;
+        searchResults.Clear();
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+
+    private void LoadSampleResults()
+    {
+        searchResults = new List<BlogPost>
+        {
+            new BlogPost
+            {
+                Id = "1",
+                Title = "Getting Started with @searchQuery",
+                Excerpt = "A beginner's guide to understanding and implementing @searchQuery in your projects.",
+                FeaturedImageUrl = "/images/sample-post-1.jpg",
+                Author = new User { DisplayName = "John Doe", Username = "johndoe", AvatarUrl = null },
+                CreatedAt = DateTime.Now.AddDays(-3),
+                ReadingTimeMinutes = 5,
+                Slug = "getting-started-sample",
+                LikesCount = 42,
+                CommentsCount = 8
+            }
+        };
+    }
+}
+
+<style>
+.medium-search-header {
+    max-width: 800px;
+    margin: 0 auto 3rem;
+}
+
+.medium-search-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.medium-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.medium-search-input {
+    width: 100%;
+    padding: 1rem 3.5rem 1rem 1.5rem;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+.medium-search-input:focus {
+    outline: none;
+    border-color: #1a8917;
+}
+
+.medium-search-btn {
+    position: absolute;
+    right: 0.5rem;
+    background: #1a8917;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.medium-search-icon {
+    width: 24px;
+    height: 24px;
+    color: #fff;
+}
+
+.medium-search-suggestions {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.medium-search-suggestions h2 {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+}
+
+.medium-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.medium-tag {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e1e5e9;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.medium-tag:hover {
+    border-color: #1a8917;
+    background: #f6f8fa;
+}
+
+.medium-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.medium-category-card {
+    padding: 1.5rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.medium-category-card:hover {
+    border-color: #1a8917;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.medium-category-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.medium-category-card p {
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.medium-search-results {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.medium-results-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: #666;
+}
+
+.medium-search-loading {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.medium-search-loading p {
+    font-size: 1.25rem;
+    color: #666;
+}
+</style>
+
