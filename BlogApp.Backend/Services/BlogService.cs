@@ -8,15 +8,18 @@ public class BlogService : IBlogService
     private readonly ISupabaseBlogRepository _repository;
     private readonly ILogger<BlogService> _logger;
     private readonly ISiteSettingsService _siteSettingsService;
+    private readonly IUserService _userService;
 
     public BlogService(
         ISupabaseBlogRepository repository,
         ILogger<BlogService> logger,
-        ISiteSettingsService siteSettingsService)
+        ISiteSettingsService siteSettingsService,
+        IUserService userService)
     {
         _repository = repository;
         _logger = logger;
         _siteSettingsService = siteSettingsService;
+        _userService = userService;
     }
 
     public async Task<BlogPost> CreatePostAsync(CreatePostRequest request)
@@ -52,6 +55,10 @@ public class BlogService : IBlogService
         };
 
         var created = await _repository.InsertPostAsync(post);
+        
+        // Update user's PostsCount
+        await UpdateUserPostsCountAsync(request.AuthorId);
+        
         return created;
     }
 
@@ -239,6 +246,48 @@ public class BlogService : IBlogService
     public Task<bool> IsPostLikedAsync(string postId, string userId)
         => _repository.HasUserLikedAsync(postId, userId);
 
+    public async Task<List<ArchiveEntry>> GetArchiveEntriesAsync()
+    {
+        var allPosts = await _repository.GetPostsAsync(new GetPostsRequest
+        {
+            PageSize = 1000,
+            Status = PostStatus.Published
+        });
+
+        var archiveEntries = allPosts
+            .GroupBy(p => new { Year = p.CreatedAt.Year, Month = p.CreatedAt.Month })
+            .Select(g => new ArchiveEntry
+            {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                MonthName = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM"),
+                PostCount = g.Count()
+            })
+            .OrderByDescending(a => a.Year)
+            .ThenByDescending(a => a.Month)
+            .ToList();
+
+        return archiveEntries;
+    }
+
+    public async Task<List<BlogPost>> GetPostsByArchiveAsync(int year, int? month = null, int page = 1, int pageSize = 10)
+    {
+        var allPosts = await _repository.GetPostsAsync(new GetPostsRequest
+        {
+            PageSize = 1000,
+            Status = PostStatus.Published
+        });
+
+        var filteredPosts = allPosts
+            .Where(p => p.CreatedAt.Year == year && (month == null || p.CreatedAt.Month == month))
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return filteredPosts;
+    }
+
     private async Task SyncLikesCountAsync(string postId)
     {
         var post = await _repository.GetPostByIdAsync(postId);
@@ -321,5 +370,35 @@ public class BlogService : IBlogService
 
         var hash = new HashSet<string>(second.Select(s => s.ToLowerInvariant()));
         return first.Any(item => hash.Contains(item.ToLowerInvariant()));
+    }
+
+    private async Task UpdateUserPostsCountAsync(string authorId)
+    {
+        try
+        {
+            // Count published posts by this author
+            var posts = await _repository.GetPostsAsync(new GetPostsRequest
+            {
+                AuthorId = authorId,
+                Status = PostStatus.Published,
+                PageSize = 1000
+            });
+
+            var postsCount = posts.Count;
+            
+            // Get user and update posts count
+            var user = await _userService.GetUserAsync(authorId);
+            if (user != null)
+            {
+                // Update user's PostsCount - this will be persisted if UserService uses Supabase
+                // For now, the in-memory service will update it
+                user.PostsCount = postsCount;
+                _logger.LogInformation("Updated posts count for user {AuthorId} to {PostsCount}", authorId, postsCount);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to update posts count for user {AuthorId}", authorId);
+        }
     }
 }

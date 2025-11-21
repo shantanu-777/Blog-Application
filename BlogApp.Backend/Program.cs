@@ -52,6 +52,10 @@ builder.Services.AddScoped<IAIContentService, AIContentService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITagService, TagService>();
+builder.Services.AddScoped<INewsletterService, NewsletterService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 var app = builder.Build();
 

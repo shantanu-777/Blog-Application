@@ -21,6 +21,8 @@ public interface IBlogService
     Task<List<BlogPost>> SearchPostsAsync(string query, int page = 1, int pageSize = 10);
     Task<List<BlogPost>> GetRelatedPostsAsync(string postId, int count = 3);
     Task<bool> IsPostLikedAsync(string postId, string userId);
+    Task<List<ArchiveEntry>> GetArchiveEntriesAsync();
+    Task<List<BlogPost>> GetPostsByArchiveAsync(int year, int? month = null, int page = 1, int pageSize = 10);
 }
 
 
@@ -48,4 +50,12 @@ public class AddCommentRequest
 public class UpdateCommentRequest
 {
     public string Content { get; set; } = string.Empty;
+}
+
+public class ArchiveEntry
+{
+    public int Year { get; set; }
+    public int? Month { get; set; }
+    public string MonthName { get; set; } = string.Empty;
+    public int PostCount { get; set; }
 }

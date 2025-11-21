@@ -22,5 +22,15 @@ public interface IBlogService
     Task<List<BlogPost>> GetPostsByAuthorAsync(string authorId);
     Task<List<BlogPost>> GetRelatedPostsAsync(string postId, int count = 3);
     Task<bool> IsPostLikedAsync(string postId);
+    Task<List<ArchiveEntry>> GetArchiveEntriesAsync();
+    Task<List<BlogPost>> GetPostsByArchiveAsync(int year, int? month = null, int page = 1, int pageSize = 10);
+}
+
+public class ArchiveEntry
+{
+    public int Year { get; set; }
+    public int? Month { get; set; }
+    public string MonthName { get; set; } = string.Empty;
+    public int PostCount { get; set; }
 }
 

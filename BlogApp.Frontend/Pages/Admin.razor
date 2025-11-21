@@ -5,43 +5,98 @@
 @using BlogApp.Shared.Models
 @using MudBlazor
 
-<div class="admin-dashboard px-4 py-4">
-    <MudText Typo="Typo.h4" Class="mb-2">Administration</MudText>
-    <MudText Typo="Typo.subtitle1" Class="mb-4 text-muted">
-        Real-time visibility into content, community, users, analytics, and site configuration.
-    </MudText>
-
+<div class="admin-layout">
     @if (notAuthorized)
     {
-        <MudAlert Severity="Severity.Warning" Variant="Variant.Filled">
-            You need administrator access to view this page.
-        </MudAlert>
-    }
-    else if (isLoading)
-    {
-        <div class="d-flex justify-center align-center my-6">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="admin-spinner" />
+        <div class="admin-container">
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Filled">
+                You need administrator access to view this page.
+            </MudAlert>
         </div>
     }
     else
     {
-        <MudTabs Rounded="true">
-            <MudTabPanel Text="Overview">
-                @OverviewTab
-            </MudTabPanel>
-            <MudTabPanel Text="Moderation">
-                @ModerationTab
-            </MudTabPanel>
-            <MudTabPanel Text="Users">
-                @UsersTab
-            </MudTabPanel>
-            <MudTabPanel Text="Analytics">
-                @AnalyticsTab
-            </MudTabPanel>
-            <MudTabPanel Text="Settings">
-                @SettingsTab
-            </MudTabPanel>
-        </MudTabs>
+        <div class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="admin-sidebar-nav">
+                <button class="admin-nav-item @(activeSection == "overview" ? "active" : "")" @onclick='() => SetActiveSection("overview")'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Overview</span>
+                </button>
+                <button class="admin-nav-item @(activeSection == "moderation" ? "active" : "")" @onclick='() => SetActiveSection("moderation")'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Moderation</span>
+                </button>
+                <button class="admin-nav-item @(activeSection == "users" ? "active" : "")" @onclick='() => SetActiveSection("users")'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Users</span>
+                </button>
+                <button class="admin-nav-item @(activeSection == "analytics" ? "active" : "")" @onclick='() => SetActiveSection("analytics")'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Analytics</span>
+                </button>
+                <button class="admin-nav-item @(activeSection == "settings" ? "active" : "")" @onclick='() => SetActiveSection("settings")'>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3m15.364 6.364l-4.243-4.243m-4.242 0L5.636 17.364m12.728 0l-4.243-4.243m-4.242 0L5.636 6.636"></path>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="admin-main">
+            @if (isLoading)
+            {
+                <div class="admin-loading">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
+            else
+            {
+                @if (activeSection == "overview")
+                {
+                    @OverviewSection
+                }
+                else if (activeSection == "moderation")
+                {
+                    @ModerationSection
+                }
+                else if (activeSection == "users")
+                {
+                    @UsersSection
+                }
+                else if (activeSection == "analytics")
+                {
+                    @AnalyticsSection
+                }
+                else if (activeSection == "settings")
+                {
+                    @SettingsSection
+                }
+            }
+        </div>
     }
 </div>
 
@@ -71,6 +126,7 @@
     private bool savingSettings;
     private bool notAuthorized;
     private int analyticsRange = 30;
+    private string activeSection = "overview";
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,6 +139,11 @@
         }
 
         await LoadAllAsync();
+    }
+
+    private void SetActiveSection(string section)
+    {
+        activeSection = section;
     }
 
     private async Task LoadAllAsync()
@@ -124,22 +185,71 @@
         analyticsLoading = false;
     }
 
-    private RenderFragment OverviewTab => (__builder) =>
+    private RenderFragment OverviewSection => (__builder) =>
     {
-        <MudGrid Class="mb-4">
-            <MudItem xs="12" sm="6" md="3">@MetricCard("Total Posts", dashboard?.TotalPosts ?? 0, Icons.Material.Filled.Article)</MudItem>
-            <MudItem xs="12" sm="6" md="3">@MetricCard("Pending Posts", dashboard?.PendingPosts ?? 0, Icons.Material.Filled.PendingActions, Color.Warning)</MudItem>
-            <MudItem xs="12" sm="6" md="3">@MetricCard("Pending Comments", dashboard?.PendingComments ?? 0, Icons.Material.Filled.Comment, Color.Info)</MudItem>
-            <MudItem xs="12" sm="6" md="3">@MetricCard("Engagement", (int)((dashboard?.EngagementRate ?? 0) * 100), Icons.Material.Filled.AutoGraph, Color.Success, "%")</MudItem>
-        </MudGrid>;
+        <div class="admin-section">
+            <h1 class="admin-section-title">Dashboard Overview</h1>
+            
+            <div class="admin-metrics-grid">
+                <div class="admin-metric-card">
+                    <div class="admin-metric-icon" style="background: #e3f2fd;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div class="admin-metric-content">
+                        <div class="admin-metric-value">@(dashboard?.TotalPosts ?? 0)</div>
+                        <div class="admin-metric-label">Total Posts</div>
+                    </div>
+                </div>
 
-        <MudGrid GutterSize="GutterSize.Small">
-            <MudItem xs="12" md="7">
-                <MudPaper Class="p-4 mb-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Recent Activity</MudText>
+                <div class="admin-metric-card">
+                    <div class="admin-metric-icon" style="background: #fff3e0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f57c00" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div class="admin-metric-content">
+                        <div class="admin-metric-value">@(dashboard?.PendingPosts ?? 0)</div>
+                        <div class="admin-metric-label">Pending Posts</div>
+                    </div>
+                </div>
+
+                <div class="admin-metric-card">
+                    <div class="admin-metric-icon" style="background: #e1f5fe;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0288d1" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="admin-metric-content">
+                        <div class="admin-metric-value">@(dashboard?.PendingComments ?? 0)</div>
+                        <div class="admin-metric-label">Pending Comments</div>
+                    </div>
+                </div>
+
+                <div class="admin-metric-card">
+                    <div class="admin-metric-icon" style="background: #e8f5e9;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#388e3c" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="admin-metric-content">
+                        <div class="admin-metric-value">@((int)((dashboard?.EngagementRate ?? 0) * 100))%</div>
+                        <div class="admin-metric-label">Engagement Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-content-grid">
+                <div class="admin-card">
+                    <h3 class="admin-card-title">Recent Activity</h3>
                     @if (dashboard?.PostTrends?.Any() == true)
                     {
-                        <MudTable Items="dashboard.PostTrends" Dense="true">
+                        <MudTable Items="dashboard.PostTrends" Dense="true" Hover="true">
                             <HeaderContent>
                                 <MudTh>Date</MudTh>
                                 <MudTh class="text-center">Posts</MudTh>
@@ -154,21 +264,20 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2" Class="text-muted">No analytics data yet.</MudText>
+                        <p class="admin-empty">No analytics data yet.</p>
                     }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12" md="5">
-                <MudPaper Class="p-4 mb-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Latest Members</MudText>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">Latest Members</h3>
                     @if (dashboard?.LatestMembers?.Any() == true)
                     {
                         <MudList Dense="true">
                             @foreach (var member in dashboard.LatestMembers)
                             {
                                 <MudListItem>
-                                    <div class="d-flex flex-column w-100">
-                                        <MudText Typo="Typo.subtitle2">@member.DisplayName ?? member.Username</MudText>
+                                    <div class="admin-member-item">
+                                        <MudText Typo="Typo.subtitle2">@(member.DisplayName ?? member.Username)</MudText>
                                         <MudText Typo="Typo.caption">@member.Email</MudText>
                                         <MudChip Color="Color.Primary" Size="Size.Small" Class="mt-1">@member.Role</MudChip>
                                     </div>
@@ -178,63 +287,40 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2" Class="text-muted">No new members yet.</MudText>
+                        <p class="admin-empty">No new members yet.</p>
                     }
-                </MudPaper>
-
-                <MudPaper Class="p-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Recent Flags</MudText>
-                    @if (dashboard?.RecentFlags?.Any() == true)
-                    {
-                        <MudList Dense="true">
-                            @foreach (var flag in dashboard.RecentFlags)
-                            {
-                                <MudListItem>
-                                    <div>
-                                        <MudText Typo="Typo.subtitle2">@flag.AuthorId</MudText>
-                                        <MudText Typo="Typo.body2">@flag.Content</MudText>
-                                        <MudText Typo="Typo.caption" Class="text-warning">@flag.FlagReason</MudText>
-                                    </div>
-                                </MudListItem>
-                            }
-                        </MudList>
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.body2" Class="text-muted">No open flags.</MudText>
-                    }
-                </MudPaper>
-            </MudItem>
-        </MudGrid>;
+                </div>
+            </div>
+        </div>;
     };
 
-    private RenderFragment ModerationTab => (__builder) =>
+    private RenderFragment ModerationSection => (__builder) =>
     {
-        <MudPaper Class="p-4 mb-4">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudSelect T="PostStatus?" Value="@postFilter.Status" ValueChanged="@(async (PostStatus? status) => await OnPostStatusChanged(status))" Label="Status" Dense="true" Variant="Variant.Text">
+        <div class="admin-section">
+            <h1 class="admin-section-title">Content Moderation</h1>
+            
+            <div class="admin-filters">
+                <MudSelect T="PostStatus?" Value="@postFilter.Status" ValueChanged="@(async (PostStatus? status) => await OnPostStatusChanged(status))" Label="Status" Dense="true" Variant="Variant.Outlined" Style="min-width: 200px;">
                     <MudSelectItem Value="@((PostStatus?)null)">All</MudSelectItem>
                     <MudSelectItem Value="@PostStatus.PendingReview">Pending Review</MudSelectItem>
                     <MudSelectItem Value="@PostStatus.Draft">Draft</MudSelectItem>
                     <MudSelectItem Value="@PostStatus.Published">Published</MudSelectItem>
                 </MudSelect>
 
-                <MudTextField @bind-Value="postSearch" Placeholder="Search posts" Variant="Variant.Outlined" Dense="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                <MudTextField @bind-Value="postSearch" Placeholder="Search posts" Variant="Variant.Outlined" Dense="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Style="flex: 1; max-width: 400px;" />
 
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyPostFilterAsync">Apply</MudButton>
                 <MudButton Variant="Variant.Text" Color="Color.Secondary" Disabled="@moderationLoading" OnClick="LoadModerationAsync">Refresh</MudButton>
-            </MudStack>
-        </MudPaper>
+            </div>
 
-        <MudGrid GutterSize="GutterSize.Small">
-            <MudItem xs="12" lg="7">
-                <MudPaper Class="p-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Posts Queue</MudText>
+            <div class="admin-content-grid">
+                <div class="admin-card" style="grid-column: 1 / -1;">
+                    <h3 class="admin-card-title">Posts Queue</h3>
                     @if (moderationLoading)
                     {
                         <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
                     }
-                    <MudTable Items="postQueue?.Items ?? new List<BlogPost>()" Dense="true">
+                    <MudTable Items="postQueue?.Items ?? new List<BlogPost>()" Dense="true" Hover="true">
                         <HeaderContent>
                             <MudTh>Title</MudTh>
                             <MudTh>Status</MudTh>
@@ -252,7 +338,7 @@
                             <MudTd>
                                 <MudTextField Value="GetReviewNote(context.Id)"
                                               ValueChanged="@((string? value) => OnReviewNoteChanged(context.Id, value))"
-                                              Variant="Variant.Text"
+                                              Variant="Variant.Outlined"
                                               Dense="true"
                                               Placeholder="Add note" />
                             </MudTd>
@@ -266,16 +352,16 @@
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12" lg="5">
-                <MudPaper Class="p-4">
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-3">
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">Comments Moderation</h3>
+                    <div class="admin-filters" style="flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
                         <MudSwitch Value="@commentFlaggedOnly" ValueChanged="@(async (bool value) => await OnCommentFlaggedChanged(value))" Color="Color.Primary" Label="Flagged only" />
                         <MudSwitch Value="@commentPendingOnly" ValueChanged="@(async (bool value) => await OnCommentPendingChanged(value))" Color="Color.Primary" Label="Pending approval" />
                         <MudTextField @bind-Value="commentSearch" Placeholder="Search comments" Variant="Variant.Outlined" Dense="true" />
                         <MudButton Variant="Variant.Text" OnClick="ApplyCommentFilterAsync">Apply</MudButton>
-                    </MudStack>
+                    </div>
                     @if (moderationLoading)
                     {
                         <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
@@ -286,11 +372,11 @@
                             @foreach (var comment in commentQueue.Items)
                             {
                                 <MudListItem Class="mb-2">
-                                    <div class="d-flex flex-column w-100">
+                                    <div class="admin-comment-item">
                                         <MudText Typo="Typo.subtitle2">@comment.AuthorId</MudText>
                                         <MudText Typo="Typo.body2">@comment.Content</MudText>
                                         <MudText Typo="Typo.caption" Class="text-muted">@comment.CreatedAt.ToLocalTime().ToString("g")</MudText>
-                                        <div class="mt-2">
+                                        <div class="admin-comment-actions">
                                             <MudButton Size="Size.Small" Color="Color.Success" Variant="Variant.Text" OnClick="() => ModerateCommentAsync(comment.Id, true, false)">Approve</MudButton>
                                             <MudButton Size="Size.Small" Color="Color.Error" Variant="Variant.Text" OnClick="() => ModerateCommentAsync(comment.Id, false, true)">Delete</MudButton>
                                             <MudButton Size="Size.Small" Color="Color.Warning" Variant="Variant.Text" OnClick="() => ModerateCommentAsync(comment.Id, false, false)">Keep Flagged</MudButton>
@@ -302,19 +388,21 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2" Class="text-muted">No comments require attention.</MudText>
+                        <p class="admin-empty">No comments require attention.</p>
                     }
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
+                </div>
+            </div>
+        </div>;
     };
 
-    private RenderFragment UsersTab => (__builder) =>
+    private RenderFragment UsersSection => (__builder) =>
     {
-        <MudPaper Class="p-4 mb-3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudTextField @bind-Value="userSearch" Placeholder="Search users" Variant="Variant.Outlined" Dense="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
-                <MudSelect T="UserRole?" Value="@userFilter.Role" ValueChanged="@(async (UserRole? role) => await OnUserRoleFilterChanged(role))" Dense="true" Label="Role" Variant="Variant.Text">
+        <div class="admin-section">
+            <h1 class="admin-section-title">User Management</h1>
+            
+            <div class="admin-filters">
+                <MudTextField @bind-Value="userSearch" Placeholder="Search users" Variant="Variant.Outlined" Dense="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Style="flex: 1; max-width: 400px;" />
+                <MudSelect T="UserRole?" Value="@userFilter.Role" ValueChanged="@(async (UserRole? role) => await OnUserRoleFilterChanged(role))" Dense="true" Label="Role" Variant="Variant.Outlined" Style="min-width: 200px;">
                     <MudSelectItem Value="@((UserRole?)null)">All</MudSelectItem>
                     <MudSelectItem Value="@UserRole.Reader">Reader</MudSelectItem>
                     <MudSelectItem Value="@UserRole.Author">Author</MudSelectItem>
@@ -323,62 +411,66 @@
                 </MudSelect>
                 <MudSwitch Value="@userActiveOnly" ValueChanged="@(async (bool value) => await OnUserActiveChanged(value))" Color="Color.Primary" Label="Active only" />
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyUserFilterAsync">Apply</MudButton>
-            </MudStack>
-        </MudPaper>
+            </div>
 
-        <MudPaper Class="p-4">
-            @if (usersLoading)
+            <div class="admin-card">
+                @if (usersLoading)
+                {
+                    <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+                }
+                <MudTable Items="users?.Items ?? new List<UserAdminSummary>()" Dense="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>User</MudTh>
+                        <MudTh>Role</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Joined</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>
+                            <MudText Typo="Typo.subtitle2">@(context.DisplayName ?? context.Username)</MudText>
+                            <MudText Typo="Typo.caption">@context.Email</MudText>
+                        </MudTd>
+                        <MudTd>
+                            <MudSelect T="UserRole" Value="@context.Role" ValueChanged="@(async (UserRole role) => await ChangeUserRoleAsync(context, role))" Dense="true" Variant="Variant.Outlined">
+                                <MudSelectItem Value="@UserRole.Reader">Reader</MudSelectItem>
+                                <MudSelectItem Value="@UserRole.Author">Author</MudSelectItem>
+                                <MudSelectItem Value="@UserRole.Editor">Editor</MudSelectItem>
+                                <MudSelectItem Value="@UserRole.Admin">Admin</MudSelectItem>
+                            </MudSelect>
+                        </MudTd>
+                        <MudTd>
+                            <MudSwitch Value="@context.IsActive" ValueChanged="@(async (bool value) => await ToggleUserStatusAsync(context, value))" Color="Color.Success" />
+                        </MudTd>
+                        <MudTd>@context.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        </div>;
+    };
+
+    private RenderFragment AnalyticsSection => (__builder) =>
+    {
+        <div class="admin-section">
+            <h1 class="admin-section-title">Analytics</h1>
+            
+            <div class="admin-filters">
+                <MudSlider @bind-Value="analyticsRange" Min="7" Max="90" Step="7" Label="Range (days)" Immediate="true" Style="flex: 1; max-width: 300px;" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@analyticsLoading" OnClick="LoadAnalyticsAsync">
+                    Refresh
+                </MudButton>
+            </div>
+            
+            @if (analyticsLoading)
             {
                 <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
             }
-            <MudTable Items="users?.Items ?? new List<UserAdminSummary>()" Dense="true">
-                <HeaderContent>
-                    <MudTh>User</MudTh>
-                    <MudTh>Role</MudTh>
-                    <MudTh>Status</MudTh>
-                    <MudTh>Joined</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd>
-                        <MudText Typo="Typo.subtitle2">@context.DisplayName ?? context.Username</MudText>
-                        <MudText Typo="Typo.caption">@context.Email</MudText>
-                    </MudTd>
-                    <MudTd>
-                        <MudSelect T="UserRole" Value="@context.Role" ValueChanged="@(async (UserRole role) => await ChangeUserRoleAsync(context, role))" Dense="true" Variant="Variant.Text">
-                            <MudSelectItem Value="@UserRole.Reader">Reader</MudSelectItem>
-                            <MudSelectItem Value="@UserRole.Author">Author</MudSelectItem>
-                            <MudSelectItem Value="@UserRole.Editor">Editor</MudSelectItem>
-                            <MudSelectItem Value="@UserRole.Admin">Admin</MudSelectItem>
-                        </MudSelect>
-                    </MudTd>
-                    <MudTd>
-                        <MudSwitch Value="@context.IsActive" ValueChanged="@(async (bool value) => await ToggleUserStatusAsync(context, value))" Color="Color.Success" />
-                    </MudTd>
-                    <MudTd>@context.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</MudTd>
-                </RowTemplate>
-            </MudTable>
-        </MudPaper>
-    };
-
-    private RenderFragment AnalyticsTab => (__builder) =>
-    {
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-3">
-            <MudSlider @bind-Value="analyticsRange" Min="7" Max="90" Step="7" Label="Range (days)" Immediate="true" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@analyticsLoading" OnClick="LoadAnalyticsAsync">
-                Refresh
-            </MudButton>
-        </MudStack>
-        @if (analyticsLoading)
-        {
-            <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
-        }
-        <MudGrid GutterSize="GutterSize.Small">
-            <MudItem xs="12" md="7">
-                <MudPaper Class="p-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Views Trend</MudText>
+            
+            <div class="admin-content-grid">
+                <div class="admin-card">
+                    <h3 class="admin-card-title">Views Trend</h3>
                     @if (analytics?.ViewsTrend?.Any() == true)
                     {
-                        <MudTable Items="analytics.ViewsTrend" Dense="true">
+                        <MudTable Items="analytics.ViewsTrend" Dense="true" Hover="true">
                             <HeaderContent>
                                 <MudTh>Date</MudTh>
                                 <MudTh>Posts</MudTh>
@@ -393,13 +485,12 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2" Class="text-muted">No analytics data.</MudText>
+                        <p class="admin-empty">No analytics data.</p>
                     }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12" md="5">
-                <MudPaper Class="p-4 mb-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Top Posts</MudText>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">Top Posts</h3>
                     @if (analytics?.TopPosts?.Any() == true)
                     {
                         <MudList Dense="true">
@@ -416,16 +507,17 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2" Class="text-muted">No post engagement yet.</MudText>
+                        <p class="admin-empty">No post engagement yet.</p>
                     }
-                </MudPaper>
-                <MudPaper Class="p-4">
-                    <MudText Typo="Typo.h6" Class="mb-2">Category Breakdown</MudText>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">Category Breakdown</h3>
                     @if (analytics?.CategoryDistribution?.Any() == true)
                     {
                         @foreach (var category in analytics.CategoryDistribution)
                         {
-                            <div class="mb-2">
+                            <div class="admin-category-item">
                                 <MudText Typo="Typo.subtitle2">@category.Category (@category.Posts)</MudText>
                                 <MudProgressLinear Value="@GetCategoryPercentage(category.Posts)" Color="Color.Primary" />
                             </div>
@@ -433,90 +525,51 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2" Class="text-muted">No categories recorded.</MudText>
+                        <p class="admin-empty">No categories recorded.</p>
                     }
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-    };
-
-    private RenderFragment SettingsTab => (__builder) =>
-    {
-        <MudPaper Class="p-4">
-            <MudText Typo="Typo.h6" Class="mb-3">Site Settings</MudText>
-            <EditForm Model="settings" OnValidSubmit="SaveSettingsAsync">
-                <DataAnnotationsValidator />
-                <MudGrid GutterSize="GutterSize.Small">
-                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.SiteTitle" Label="Site Title" Required="true" /></MudItem>
-                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.SiteUrl" Label="Site URL" Required="true" /></MudItem>
-                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.ContactEmail" Label="Contact Email" /></MudItem>
-                    <MudItem xs="12"><MudTextField @bind-Value="settings.SiteDescription" Label="Description" Lines="3" /></MudItem>
-                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.PrimaryColor" Label="Primary Color" /></MudItem>
-                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.SecondaryColor" Label="Secondary Color" /></MudItem>
-                    <MudItem xs="12" md="4"><MudTextField @bind-Value="settings.ThemeColor" Label="Accent" /></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="settings.GoogleAnalyticsId" Label="Google Analytics ID" /></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="settings.FacebookPixelId" Label="Facebook Pixel ID" /></MudItem>
-                </MudGrid>
-                <MudGrid Class="mt-2">
-                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.AllowComments" Color="Color.Primary" Label="Allow Comments" /></MudItem>
-                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.RequireCommentApproval" Color="Color.Primary" Label="Require Approval" /></MudItem>
-                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.EnableNewsletter" Color="Color.Primary" Label="Newsletter" /></MudItem>
-                    <MudItem xs="12" md="3"><MudSwitch @bind-Value="settings.EnableSearch" Color="Color.Primary" Label="Search" /></MudItem>
-                </MudGrid>
-                <div class="d-flex justify-end mt-4">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="savingSettings" Type="Submit">
-                        @if (savingSettings)
-                        {
-                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
-                        }
-                        Save Settings
-                    </MudButton>
                 </div>
-            </EditForm>
-        </MudPaper>;
+            </div>
+        </div>;
     };
 
-    private RenderFragment MetricCard(string label, int value, string icon, Color color = Color.Primary, string suffix = "")
-        => builder =>
-        {
-            builder.OpenComponent<MudPaper>(0);
-            builder.AddAttribute(1, "Class", "p-3");
-            builder.AddAttribute(2, "ChildContent", (RenderFragment)(contentBuilder =>
-            {
-                contentBuilder.OpenComponent<MudStack>(3);
-                contentBuilder.AddAttribute(4, "Row", true);
-                contentBuilder.AddAttribute(5, "AlignItems", AlignItems.Center);
-                contentBuilder.AddAttribute(6, "Spacing", 1);
-                contentBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(stackBuilder =>
-                {
-                    stackBuilder.OpenComponent<MudIcon>(8);
-                    stackBuilder.AddAttribute(9, "Icon", icon);
-                    stackBuilder.AddAttribute(10, "Color", color);
-                    stackBuilder.AddAttribute(11, "Size", Size.Large);
-                    stackBuilder.CloseComponent();
-
-                    stackBuilder.OpenComponent<MudStack>(12);
-                    stackBuilder.AddAttribute(13, "Spacing", 0);
-                    stackBuilder.AddAttribute(14, "ChildContent", (RenderFragment)(textBuilder =>
-                    {
-                        textBuilder.OpenComponent<MudText>(15);
-                        textBuilder.AddAttribute(16, "Typo", Typo.body2);
-                        textBuilder.AddAttribute(17, "ChildContent", (RenderFragment)(textContent =>
-                            textContent.AddContent(18, label)));
-                        textBuilder.CloseComponent();
-
-                        textBuilder.OpenComponent<MudText>(19);
-                        textBuilder.AddAttribute(20, "Typo", Typo.h5);
-                        textBuilder.AddAttribute(21, "ChildContent", (RenderFragment)(textContent =>
-                            textContent.AddContent(22, $"{value:N0}{suffix}")));
-                        textBuilder.CloseComponent();
-                    }));
-                    stackBuilder.CloseComponent();
-                }));
-                contentBuilder.CloseComponent();
-            }));
-            builder.CloseComponent();
-        };
+    private RenderFragment SettingsSection => (__builder) =>
+    {
+        <div class="admin-section">
+            <h1 class="admin-section-title">Site Settings</h1>
+            
+            <div class="admin-card">
+                <EditForm Model="settings" OnValidSubmit="SaveSettingsAsync">
+                    <DataAnnotationsValidator />
+                    <div class="admin-settings-grid">
+                        <MudTextField @bind-Value="settings.SiteTitle" Label="Site Title" Required="true" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.SiteUrl" Label="Site URL" Required="true" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.ContactEmail" Label="Contact Email" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.SiteDescription" Label="Description" Lines="3" Variant="Variant.Outlined" Style="grid-column: 1 / -1;" />
+                        <MudTextField @bind-Value="settings.PrimaryColor" Label="Primary Color" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.SecondaryColor" Label="Secondary Color" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.ThemeColor" Label="Accent" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.GoogleAnalyticsId" Label="Google Analytics ID" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="settings.FacebookPixelId" Label="Facebook Pixel ID" Variant="Variant.Outlined" />
+                    </div>
+                    <div class="admin-settings-switches">
+                        <MudSwitch @bind-Value="settings.AllowComments" Color="Color.Primary" Label="Allow Comments" />
+                        <MudSwitch @bind-Value="settings.RequireCommentApproval" Color="Color.Primary" Label="Require Approval" />
+                        <MudSwitch @bind-Value="settings.EnableNewsletter" Color="Color.Primary" Label="Newsletter" />
+                        <MudSwitch @bind-Value="settings.EnableSearch" Color="Color.Primary" Label="Search" />
+                    </div>
+                    <div class="admin-settings-actions">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="savingSettings" Type="Submit">
+                            @if (savingSettings)
+                            {
+                                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                            }
+                            Save Settings
+                        </MudButton>
+                    </div>
+                </EditForm>
+            </div>
+        </div>;
+    };
 
     private async Task ApplyPostFilterAsync()
     {
@@ -676,3 +729,268 @@
     }
 }
 
+<style>
+.admin-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+    background: #f5f5f5;
+}
+
+.admin-sidebar {
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid #e1e5e9;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+.admin-sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.admin-sidebar-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.admin-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+}
+
+.admin-nav-item:hover {
+    background: #f6f8fa;
+    color: #1a8917;
+}
+
+.admin-nav-item.active {
+    background: #e8f5e9;
+    color: #1a8917;
+    font-weight: 600;
+}
+
+.admin-main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.admin-section {
+    max-width: 1400px;
+}
+
+.admin-section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 2rem 0;
+    color: #333;
+}
+
+.admin-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-metric-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.admin-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.admin-metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-metric-content {
+    flex: 1;
+}
+
+.admin-metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+}
+
+.admin-metric-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.admin-content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.admin-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.admin-empty {
+    color: #999;
+    text-align: center;
+    padding: 2rem;
+    margin: 0;
+}
+
+.admin-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.admin-member-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.admin-comment-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.admin-comment-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.admin-category-item {
+    margin-bottom: 1rem;
+}
+
+.admin-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-settings-switches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f6f8fa;
+    border-radius: 8px;
+}
+
+.admin-settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid #e1e5e9;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+@@media (max-width: 1024px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        border-right: none;
+        border-bottom: 1px solid #e1e5e9;
+    }
+    
+    .admin-sidebar-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0.5rem;
+    }
+    
+    .admin-nav-item {
+        white-space: nowrap;
+        min-width: fit-content;
+    }
+    
+    .admin-main {
+        padding: 1rem;
+    }
+    
+    .admin-content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+</style>

@@ -1,0 +1,137 @@
+@page "/tag/{Slug}"
+@inject ITagService TagService
+@inject NavigationManager Navigation
+@using BlogApp.Shared.Models
+
+<PageTitle>@(tag?.Name ?? "Tag") - BlogApp</PageTitle>
+
+@if (isLoading)
+{
+    <div class="medium-page">
+        <div class="medium-post-skeleton" />
+    </div>
+}
+else if (tag != null)
+{
+    <div class="medium-page">
+        <div class="medium-tag-header">
+            <h1>#@tag.Name</h1>
+            @if (!string.IsNullOrEmpty(tag.Description))
+            {
+                <p class="medium-tag-description">@tag.Description</p>
+            }
+            <p class="medium-tag-count">@posts.Count posts</p>
+        </div>
+
+        <div class="medium-posts-list">
+            @if (posts.Any())
+            {
+                @foreach (var post in posts)
+                {
+                    <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                        @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                        {
+                            <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                        }
+                        <div class="medium-post-content">
+                            <h3>@post.Title</h3>
+                            <p class="medium-post-excerpt">@post.Excerpt</p>
+                            <div class="medium-post-meta">
+                                <span>@post.Author?.DisplayName • @post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                <span>@post.ReadingTimeMinutes min read</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="medium-empty-state">
+                    <h2>No posts found</h2>
+                    <p>There are no posts with this tag yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="medium-page">
+        <div class="medium-empty-state">
+            <h2>Tag not found</h2>
+            <p>The tag you're looking for doesn't exist.</p>
+            <a href="/" class="medium-btn medium-btn-primary">Go Home</a>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private BlogApp.Shared.Models.Tag? tag;
+    private List<BlogPost> posts = new();
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadTag();
+    }
+
+    private async Task LoadTag()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            tag = await TagService.GetTagBySlugAsync(Slug);
+            if (tag != null)
+            {
+                posts = await TagService.GetPostsByTagAsync(Slug, 1, 50);
+            }
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+}
+
+<style>
+.medium-tag-header {
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.medium-tag-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.medium-tag-description {
+    font-size: 1.25rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.medium-tag-count {
+    font-size: 1rem;
+    color: #999;
+}
+</style>
+

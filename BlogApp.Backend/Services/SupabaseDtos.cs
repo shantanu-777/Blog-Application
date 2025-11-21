@@ -162,6 +162,132 @@ internal static class SupabaseDtoExtensions
             UpdatedAt = settings.UpdatedAt
         };
     }
+
+    public static Category ToModel(this SupabaseCategoryDto dto)
+    {
+        return new Category
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Description = dto.Description,
+            Slug = dto.Slug,
+            Color = dto.Color,
+            Icon = dto.Icon,
+            PostsCount = dto.PostsCount,
+            CreatedAt = dto.CreatedAt ?? DateTime.UtcNow,
+            IsActive = dto.IsActive
+        };
+    }
+
+    public static SupabaseCategoryDto ToDto(this Category category)
+    {
+        return new SupabaseCategoryDto
+        {
+            Id = string.IsNullOrEmpty(category.Id) ? Guid.NewGuid().ToString() : category.Id,
+            Name = category.Name,
+            Description = category.Description,
+            Slug = category.Slug,
+            Color = category.Color,
+            Icon = category.Icon,
+            PostsCount = category.PostsCount,
+            CreatedAt = category.CreatedAt,
+            IsActive = category.IsActive
+        };
+    }
+
+    public static Tag ToModel(this SupabaseTagDto dto)
+    {
+        return new Tag
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Description = dto.Description,
+            Slug = dto.Slug,
+            Color = dto.Color,
+            PostsCount = dto.PostsCount,
+            CreatedAt = dto.CreatedAt ?? DateTime.UtcNow,
+            IsActive = dto.IsActive
+        };
+    }
+
+    public static SupabaseTagDto ToDto(this Tag tag)
+    {
+        return new SupabaseTagDto
+        {
+            Id = string.IsNullOrEmpty(tag.Id) ? Guid.NewGuid().ToString() : tag.Id,
+            Name = tag.Name,
+            Description = tag.Description,
+            Slug = tag.Slug,
+            Color = tag.Color,
+            PostsCount = tag.PostsCount,
+            CreatedAt = tag.CreatedAt,
+            IsActive = tag.IsActive
+        };
+    }
+
+    public static NewsletterSubscription ToModel(this SupabaseNewsletterSubscriptionDto dto)
+    {
+        return new NewsletterSubscription
+        {
+            Id = dto.Id,
+            Email = dto.Email,
+            Name = dto.Name,
+            IsActive = dto.IsActive,
+            SubscribedAt = dto.SubscribedAt ?? DateTime.UtcNow,
+            UnsubscribedAt = dto.UnsubscribedAt,
+            UnsubscribeToken = dto.UnsubscribeToken,
+            Preferences = dto.Preferences?.ToList() ?? new List<string>()
+        };
+    }
+
+    public static SupabaseNewsletterSubscriptionDto ToDto(this NewsletterSubscription subscription)
+    {
+        return new SupabaseNewsletterSubscriptionDto
+        {
+            Id = string.IsNullOrEmpty(subscription.Id) ? Guid.NewGuid().ToString() : subscription.Id,
+            Email = subscription.Email,
+            Name = subscription.Name,
+            IsActive = subscription.IsActive,
+            SubscribedAt = subscription.SubscribedAt,
+            UnsubscribedAt = subscription.UnsubscribedAt,
+            UnsubscribeToken = subscription.UnsubscribeToken,
+            Preferences = subscription.Preferences?.ToArray() ?? Array.Empty<string>()
+        };
+    }
+
+    public static ContactMessage ToModel(this SupabaseContactMessageDto dto)
+    {
+        return new ContactMessage
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Email = dto.Email,
+            Subject = dto.Subject,
+            Message = dto.Message,
+            Status = dto.Status,
+            CreatedAt = dto.CreatedAt ?? DateTime.UtcNow,
+            RespondedAt = dto.RespondedAt,
+            Response = dto.Response,
+            AdminNotes = dto.AdminNotes
+        };
+    }
+
+    public static SupabaseContactMessageDto ToDto(this ContactMessage message)
+    {
+        return new SupabaseContactMessageDto
+        {
+            Id = string.IsNullOrEmpty(message.Id) ? Guid.NewGuid().ToString() : message.Id,
+            Name = message.Name,
+            Email = message.Email,
+            Subject = message.Subject,
+            Message = message.Message,
+            Status = message.Status,
+            CreatedAt = message.CreatedAt,
+            RespondedAt = message.RespondedAt,
+            Response = message.Response,
+            AdminNotes = message.AdminNotes
+        };
+    }
 }
 
 internal class SupabasePostDto
@@ -360,5 +486,122 @@ internal class SupabaseSiteSettingsDto
 
     [JsonPropertyName("updated_at")]
     public DateTime? UpdatedAt { get; set; }
+}
+
+internal class SupabaseCategoryDto
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("slug")]
+    public string? Slug { get; set; }
+
+    [JsonPropertyName("color")]
+    public string? Color { get; set; }
+
+    [JsonPropertyName("icon")]
+    public string? Icon { get; set; }
+
+    [JsonPropertyName("posts_count")]
+    public int PostsCount { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public DateTime? CreatedAt { get; set; }
+
+    [JsonPropertyName("is_active")]
+    public bool IsActive { get; set; } = true;
+}
+
+internal class SupabaseTagDto
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("slug")]
+    public string? Slug { get; set; }
+
+    [JsonPropertyName("color")]
+    public string? Color { get; set; }
+
+    [JsonPropertyName("posts_count")]
+    public int PostsCount { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public DateTime? CreatedAt { get; set; }
+
+    [JsonPropertyName("is_active")]
+    public bool IsActive { get; set; } = true;
+}
+
+internal class SupabaseNewsletterSubscriptionDto
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("is_active")]
+    public bool IsActive { get; set; } = true;
+
+    [JsonPropertyName("subscribed_at")]
+    public DateTime? SubscribedAt { get; set; }
+
+    [JsonPropertyName("unsubscribed_at")]
+    public DateTime? UnsubscribedAt { get; set; }
+
+    [JsonPropertyName("unsubscribe_token")]
+    public string? UnsubscribeToken { get; set; }
+
+    [JsonPropertyName("preferences")]
+    public string[]? Preferences { get; set; }
+}
+
+internal class SupabaseContactMessageDto
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = string.Empty;
+
+    [JsonPropertyName("subject")]
+    public string? Subject { get; set; }
+
+    [JsonPropertyName("message")]
+    public string Message { get; set; } = string.Empty;
+
+    [JsonPropertyName("status")]
+    public ContactStatus Status { get; set; } = ContactStatus.New;
+
+    [JsonPropertyName("created_at")]
+    public DateTime? CreatedAt { get; set; }
+
+    [JsonPropertyName("responded_at")]
+    public DateTime? RespondedAt { get; set; }
+
+    [JsonPropertyName("response")]
+    public string? Response { get; set; }
+
+    [JsonPropertyName("admin_notes")]
+    public string? AdminNotes { get; set; }
 }
 

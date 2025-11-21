@@ -1,0 +1,239 @@
+@page "/archive"
+@inject IBlogService BlogService
+@inject NavigationManager Navigation
+@using BlogApp.Shared.Models
+@using BlogApp.Frontend.Services
+
+<PageTitle>Archive - BlogApp</PageTitle>
+
+<div class="medium-page">
+    <div class="medium-archive-header">
+        <h1>Archive</h1>
+        <p>Browse posts by date</p>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="medium-archive-loading">
+            <p>Loading archive...</p>
+        </div>
+    }
+    else if (selectedYear.HasValue)
+    {
+        <div class="medium-archive-posts">
+            <button class="medium-btn medium-btn-outline" @onclick="BackToArchive">← Back to Archive</button>
+            <h2>@selectedYear @(selectedMonth.HasValue ? "- " + new DateTime(selectedYear.Value, selectedMonth.Value, 1).ToString("MMMM") : "")</h2>
+            
+            @if (posts.Any())
+            {
+                <div class="medium-posts-list">
+                    @foreach (var post in posts)
+                    {
+                        <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                            @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                            {
+                                <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                            }
+                            <div class="medium-post-content">
+                                <h3>@post.Title</h3>
+                                <p class="medium-post-excerpt">@post.Excerpt</p>
+                                <div class="medium-post-meta">
+                                    <span>@post.Author?.DisplayName • @post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    <span>@post.ReadingTimeMinutes min read</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="medium-empty-state">
+                    <h2>No posts found</h2>
+                    <p>There are no posts for this period.</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="medium-archive-list">
+            @foreach (var yearGroup in archiveEntries.GroupBy(e => e.Year).OrderByDescending(g => g.Key))
+            {
+                <div class="medium-archive-year">
+                    <h2 @onclick="() => SelectYear(yearGroup.Key)">@yearGroup.Key</h2>
+                    <div class="medium-archive-months">
+                        @foreach (var entry in yearGroup.OrderByDescending(e => e.Month))
+                        {
+                            <div class="medium-archive-month" @onclick="() => SelectMonth(yearGroup.Key, entry.Month)">
+                                <span class="medium-archive-month-name">@entry.MonthName</span>
+                                <span class="medium-archive-month-count">@entry.PostCount posts</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ArchiveEntry> archiveEntries = new();
+    private List<BlogPost> posts = new();
+    private bool isLoading = true;
+    private int? selectedYear;
+    private int? selectedMonth;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadArchive();
+    }
+
+    private async Task LoadArchive()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            archiveEntries = await BlogService.GetArchiveEntriesAsync();
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SelectYear(int year)
+    {
+        selectedYear = year;
+        selectedMonth = null;
+        await LoadPosts();
+    }
+
+    private async Task SelectMonth(int year, int? month)
+    {
+        selectedYear = year;
+        selectedMonth = month;
+        await LoadPosts();
+    }
+
+    private async Task LoadPosts()
+    {
+        if (!selectedYear.HasValue) return;
+
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            posts = await BlogService.GetPostsByArchiveAsync(selectedYear.Value, selectedMonth, 1, 100);
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void BackToArchive()
+    {
+        selectedYear = null;
+        selectedMonth = null;
+        posts.Clear();
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+}
+
+<style>
+.medium-archive-header {
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.medium-archive-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.medium-archive-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.medium-archive-year {
+    margin-bottom: 2rem;
+}
+
+.medium-archive-year h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    color: #1a8917;
+}
+
+.medium-archive-year h2:hover {
+    text-decoration: underline;
+}
+
+.medium-archive-months {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.medium-archive-month {
+    padding: 1rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.medium-archive-month:hover {
+    border-color: #1a8917;
+    background: #f6f8fa;
+}
+
+.medium-archive-month-name {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.medium-archive-month-count {
+    display: block;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.medium-archive-posts {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.medium-archive-posts h2 {
+    font-size: 2rem;
+    margin: 2rem 0;
+}
+</style>
+

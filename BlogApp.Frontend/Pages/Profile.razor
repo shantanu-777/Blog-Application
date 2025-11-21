@@ -10,189 +10,239 @@
 
 @if (isLoadingProfile)
 {
-    <div class="medium-profile-page">
-        <div class="medium-profile-skeleton" />
+    <div class="profile-loading">
+        <div class="profile-skeleton" />
     </div>
 }
 else if (user == null)
 {
-    <div class="medium-page">
-        <div class="medium-empty-state">
+    <div class="profile-container">
+        <div class="profile-empty">
             <h2>User not found</h2>
             <p>The user you're looking for doesn't exist.</p>
-            <a href="/" class="medium-btn medium-btn-primary">Go Home</a>
+            <a href="/" class="btn btn-primary">Go Home</a>
         </div>
     </div>
 }
 else
 {
-    <div class="medium-profile-header">
-        <div class="medium-profile-background" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div class="medium-profile-content">
-                <div class="medium-profile-avatar-container">
-                    @if (!string.IsNullOrEmpty(user.AvatarUrl))
-                    {
-                        <img src="@user.AvatarUrl" alt="@user.DisplayName" class="medium-profile-avatar-large" />
-                    }
-                    else
-                    {
-                        <div class="medium-profile-avatar-large medium-profile-avatar-placeholder">
-                            @(user.DisplayName?[0] ?? user.Username[0])
-                        </div>
-                    }
-                    @if (isOwnProfile)
-                    {
-                        <button class="medium-edit-avatar-btn" title="Edit avatar" @onclick="EditProfile">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.558.558l2.685.8c.827.24 1.715-.13 2.214-1.32l8.4-8.4z" />
-                                <path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5-1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z" />
-                            </svg>
-                        </button>
-                    }
-                </div>
-                <div class="medium-profile-info">
-                    <div class="medium-profile-name-wrapper">
-                        <h1>@(user.DisplayName ?? user.Username)</h1>
-                        @if (!string.IsNullOrEmpty(user.Username))
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-cover" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="profile-cover-content">
+                    <div class="profile-avatar-section">
+                        @if (!string.IsNullOrEmpty(user.AvatarUrl))
                         {
-                            <span class="medium-profile-username">@($"@{user.Username}")</span>
+                            <img src="@user.AvatarUrl" alt="@user.DisplayName" class="profile-avatar" />
+                        }
+                        else
+                        {
+                            <div class="profile-avatar profile-avatar-placeholder">
+                                @(user.DisplayName?[0] ?? user.Username[0])
+                            </div>
+                        }
+                        @if (isOwnProfile)
+                        {
+                            <button class="profile-edit-btn" @onclick="EditProfile" title="Edit Profile">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
                         }
                     </div>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="profile-name-section">
+                    <h1 class="profile-name">@(user.DisplayName ?? user.Username)</h1>
+                    @if (!string.IsNullOrEmpty(user.Username))
+                    {
+                        <span class="profile-username">@@@user.Username</span>
+                    }
                     @if (!string.IsNullOrEmpty(user.Bio))
                     {
-                        <p class="medium-profile-bio">@user.Bio</p>
+                        <p class="profile-bio">@user.Bio</p>
                     }
-                    <div class="medium-profile-meta">
-                        <span><strong>@user.PostsCount</strong> Posts</span>
-                        <span><strong>@user.FollowersCount</strong> Followers</span>
-                        <span><strong>@user.FollowingCount</strong> Following</span>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="profile-stat-value">@user.PostsCount</span>
+                        <span class="profile-stat-label">Posts</span>
                     </div>
-                    <div class="medium-profile-links">
-                        @if (!string.IsNullOrEmpty(user.Website))
-                        {
-                            <a href="@user.Website" target="_blank" class="medium-profile-link">🌐 @user.Website</a>
-                        }
-                        @if (!string.IsNullOrEmpty(user.GitHub))
-                        {
-                            <a href="@user.GitHub" target="_blank" class="medium-profile-link">🐙 GitHub</a>
-                        }
-                        @if (!string.IsNullOrEmpty(user.Twitter))
-                        {
-                            <a href="@user.Twitter" target="_blank" class="medium-profile-link">🐦 Twitter</a>
-                        }
-                        @if (!string.IsNullOrEmpty(user.LinkedIn))
-                        {
-                            <a href="@user.LinkedIn" target="_blank" class="medium-profile-link">💼 LinkedIn</a>
-                        }
+                    <div class="profile-stat">
+                        <span class="profile-stat-value">@user.FollowersCount</span>
+                        <span class="profile-stat-label">Followers</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="profile-stat-value">@user.FollowingCount</span>
+                        <span class="profile-stat-label">Following</span>
                     </div>
                 </div>
-                <div class="medium-profile-actions">
+
+                <div class="profile-actions">
                     @if (!isOwnProfile)
                     {
-                        <button class="medium-btn medium-btn-primary" @onclick="ToggleFollow">
+                        <button class="btn btn-primary" @onclick="ToggleFollow">
                             @(isFollowing ? "Following" : "Follow")
                         </button>
                     }
                     else
                     {
-                        <button class="medium-btn medium-btn-outline" @onclick="EditProfile">
-                            Edit Profile
-                        </button>
+                        <button class="btn btn-outline" @onclick="EditProfile">Edit Profile</button>
                     }
                 </div>
+
+                @if (user.Website != null || user.Twitter != null || user.LinkedIn != null || user.GitHub != null)
+                {
+                    <div class="profile-links">
+                        @if (!string.IsNullOrEmpty(user.Website))
+                        {
+                            <a href="@user.Website" target="_blank" class="profile-link" title="Website">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                </svg>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(user.Twitter))
+                        {
+                            <a href="@user.Twitter" target="_blank" class="profile-link" title="Twitter">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"></path>
+                                </svg>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(user.LinkedIn))
+                        {
+                            <a href="@user.LinkedIn" target="_blank" class="profile-link" title="LinkedIn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(user.GitHub))
+                        {
+                            <a href="@user.GitHub" target="_blank" class="profile-link" title="GitHub">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"></path>
+                                </svg>
+                            </a>
+                        }
+                    </div>
+                }
             </div>
         </div>
-    </div>
 
-    <div class="medium-page">
-        <div class="medium-profile-tabs">
-            <button class="medium-tab @(activeTab == "posts" ? "active" : "")" @onclick='() => SwitchTab("posts")'>
-                Posts (@user.PostsCount)
-            </button>
-            <button class="medium-tab @(activeTab == "about" ? "active" : "")" @onclick='() => SwitchTab("about")'>
-                About
-            </button>
-        </div>
+        <div class="profile-content">
+            <div class="profile-tabs">
+                <button class="profile-tab @(activeTab == "posts" ? "active" : "")" @onclick='() => SwitchTab("posts")'>
+                    Posts
+                </button>
+                <button class="profile-tab @(activeTab == "about" ? "active" : "")" @onclick='() => SwitchTab("about")'>
+                    About
+                </button>
+            </div>
 
-        @if (activeTab == "posts")
-        {
-            <div class="medium-posts-list">
-                @if (isLoadingPosts)
-                {
-                    @for (int i = 0; i < 3; i++)
+            @if (activeTab == "posts")
+            {
+                <div class="profile-posts">
+                    @if (isLoadingPosts)
                     {
-                        <div class="medium-post-skeleton" />
+                        @for (int i = 0; i < 3; i++)
+                        {
+                            <div class="post-card-skeleton" />
+                        }
                     }
-                }
-                else if (userPosts.Any())
-                {
-                    @foreach (var post in userPosts)
+                    else if (userPosts.Any())
                     {
-                        <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
-                            @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
-                            {
-                                <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
-                            }
-                            <div class="medium-post-content">
-                                <h3>@post.Title</h3>
-                                <p class="medium-post-excerpt">@post.Excerpt</p>
-                                <div class="medium-post-meta">
-                                    <span>@post.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
-                                    <span>💙 @post.LikesCount</span>
-                                    <span>💬 @post.CommentsCount</span>
-                                    <span>⏱️ @post.ReadingTimeMinutes min read</span>
+                        @foreach (var post in userPosts)
+                        {
+                            <div class="post-card" @onclick="() => NavigateToPost(post.Slug)">
+                                @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                                {
+                                    <img src="@post.FeaturedImageUrl" alt="@post.Title" class="post-card-image" />
+                                }
+                                <div class="post-card-content">
+                                    <h3 class="post-card-title">@post.Title</h3>
+                                    <p class="post-card-excerpt">@post.Excerpt</p>
+                                    <div class="post-card-meta">
+                                        <span>@post.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                                        <span>•</span>
+                                        <span>@post.ReadingTimeMinutes min read</span>
+                                        <span>•</span>
+                                        <span>💙 @post.LikesCount</span>
+                                        <span>•</span>
+                                        <span>💬 @post.CommentsCount</span>
+                                    </div>
                                 </div>
                             </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="profile-empty-posts">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <h3>No posts yet</h3>
+                            <p>@(user.DisplayName ?? user.Username) hasn't published any posts yet.</p>
+                            @if (isOwnProfile)
+                            {
+                                <a href="/write" class="btn btn-primary">Write Your First Post</a>
+                            }
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="medium-empty-state">
-                        <p>@(user.DisplayName ?? user.Username) hasn't published any posts yet.</p>
-                    </div>
-                }
-            </div>
-        }
-        else if (activeTab == "about")
-        {
-            <div class="medium-about-section">
-                @if (!string.IsNullOrEmpty(user.Bio))
-                {
-                    <div class="medium-about-block">
-                        <h3>About</h3>
-                        <p>@user.Bio</p>
-                    </div>
-                }
-                
-                <div class="medium-about-block">
-                    <h3>Member since</h3>
-                    <p>@user.CreatedAt.ToLocalTime().ToString("MMMM dd, yyyy")</p>
                 </div>
+            }
+            else if (activeTab == "about")
+            {
+                <div class="profile-about">
+                    @if (!string.IsNullOrEmpty(user.Bio))
+                    {
+                        <div class="about-section">
+                            <h3>About</h3>
+                            <p>@user.Bio</p>
+                        </div>
+                    }
+                    
+                    <div class="about-section">
+                        <h3>Member since</h3>
+                        <p>@user.CreatedAt.ToLocalTime().ToString("MMMM dd, yyyy")</p>
+                    </div>
 
-                <div class="medium-about-block">
-                    <h3>Activity</h3>
-                    <div class="medium-about-stats">
-                        <div class="medium-about-stat-item">
-                            <span class="medium-about-stat-label">Posts</span>
-                            <span class="medium-about-stat-value">@user.PostsCount</span>
-                        </div>
-                        <div class="medium-about-stat-item">
-                            <span class="medium-about-stat-label">Followers</span>
-                            <span class="medium-about-stat-value">@user.FollowersCount</span>
-                        </div>
-                        <div class="medium-about-stat-item">
-                            <span class="medium-about-stat-label">Following</span>
-                            <span class="medium-about-stat-value">@user.FollowingCount</span>
-                        </div>
-                        <div class="medium-about-stat-item">
-                            <span class="medium-about-stat-label">Total likes</span>
-                            <span class="medium-about-stat-value">@user.LikesCount</span>
+                    <div class="about-section">
+                        <h3>Statistics</h3>
+                        <div class="about-stats-grid">
+                            <div class="about-stat-item">
+                                <span class="about-stat-label">Posts</span>
+                                <span class="about-stat-value">@user.PostsCount</span>
+                            </div>
+                            <div class="about-stat-item">
+                                <span class="about-stat-label">Followers</span>
+                                <span class="about-stat-value">@user.FollowersCount</span>
+                            </div>
+                            <div class="about-stat-item">
+                                <span class="about-stat-label">Following</span>
+                                <span class="about-stat-value">@user.FollowingCount</span>
+                            </div>
+                            <div class="about-stat-item">
+                                <span class="about-stat-label">Total likes</span>
+                                <span class="about-stat-value">@user.LikesCount</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 }
 
@@ -228,14 +278,12 @@ else
 
             if (string.IsNullOrEmpty(Username))
             {
-                // View own profile
                 user = currentUser;
                 isOwnProfile = true;
                 await LoadUserPosts();
             }
             else
             {
-                // View other user's profile
                 user = await UserService.GetUserByUsernameAsync(Username);
                 isOwnProfile = currentUser?.Username == user?.Username;
                 if (user != null)
@@ -246,9 +294,9 @@ else
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            user = null; // will trigger error UI
+            user = null;
         }
         finally
         {
@@ -268,7 +316,7 @@ else
         }
         catch
         {
-            userPosts = new(); // error fallback
+            userPosts = new();
         }
         finally
         {
@@ -290,10 +338,12 @@ else
             if (isFollowing)
             {
                 await UserService.UnfollowUserAsync(currentUser.Id, user.Id);
+                user.FollowersCount--;
             }
             else
             {
                 await UserService.FollowUserAsync(currentUser.Id, user.Id);
+                user.FollowersCount++;
             }
             isFollowing = !isFollowing;
         }
@@ -316,3 +366,387 @@ else
         }
     }
 }
+
+<style>
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.profile-header {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.profile-cover {
+    height: 200px;
+    position: relative;
+}
+
+.profile-cover-content {
+    position: absolute;
+    bottom: -60px;
+    left: 2rem;
+    right: 2rem;
+}
+
+.profile-avatar-section {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    object-fit: cover;
+    background: #f0f0f0;
+}
+
+.profile-avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 600;
+    color: #666;
+}
+
+.profile-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #1a8917;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.profile-edit-btn:hover {
+    background: #157412;
+    transform: scale(1.05);
+}
+
+.profile-info {
+    padding: 4rem 2rem 2rem;
+}
+
+.profile-name-section {
+    margin-bottom: 1.5rem;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: #333;
+}
+
+.profile-username {
+    font-size: 1.125rem;
+    color: #666;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.profile-bio {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin: 0.75rem 0 0 0;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.profile-stat-label {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.profile-actions {
+    margin-bottom: 1rem;
+}
+
+.profile-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.profile-link {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #e1e5e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.profile-link:hover {
+    border-color: #1a8917;
+    color: #1a8917;
+    background: #f6f8fa;
+}
+
+.profile-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-tabs {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 2rem;
+}
+
+.profile-tab {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.profile-tab:hover {
+    color: #1a8917;
+}
+
+.profile-tab.active {
+    color: #1a8917;
+    border-bottom-color: #1a8917;
+}
+
+.profile-posts {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.post-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.post-card:hover {
+    border-color: #1a8917;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.post-card-image {
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.post-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.post-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #333;
+}
+
+.post-card-excerpt {
+    color: #666;
+    line-height: 1.6;
+    flex: 1;
+}
+
+.post-card-meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #999;
+    align-items: center;
+}
+
+.profile-empty-posts {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.profile-empty-posts svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.profile-empty-posts h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-about {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.about-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.about-section p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.about-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+}
+
+.about-stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background: #f6f8fa;
+    border-radius: 8px;
+}
+
+.about-stat-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.about-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: #1a8917;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #157412;
+}
+
+.btn-outline {
+    background: #fff;
+    color: #1a8917;
+    border: 2px solid #1a8917;
+}
+
+.btn-outline:hover {
+    background: #f6f8fa;
+}
+
+.profile-loading {
+    padding: 2rem;
+}
+
+.profile-skeleton {
+    height: 400px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 12px;
+}
+
+.post-card-skeleton {
+    height: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 12px;
+}
+
+@@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@@media (max-width: 768px) {
+    .post-card {
+        flex-direction: column;
+    }
+    
+    .post-card-image {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .profile-stats {
+        gap: 1rem;
+    }
+    
+    .profile-cover-content {
+        left: 1rem;
+        right: 1rem;
+    }
+    
+    .profile-info {
+        padding: 4rem 1rem 1.5rem;
+    }
+}
+</style>

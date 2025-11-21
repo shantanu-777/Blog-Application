@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BlogApp.Backend.Services;
 using BlogApp.Shared.Models;
+using ArchiveEntry = BlogApp.Backend.Services.ArchiveEntry;
 
 namespace BlogApp.Backend.Controllers;
 
@@ -312,6 +313,36 @@ public class BlogController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking if post is liked");
+            return StatusCode(500, new { message = "Internal server error" });
+        }
+    }
+
+    [HttpGet("archive")]
+    public async Task<ActionResult<List<ArchiveEntry>>> GetArchive()
+    {
+        try
+        {
+            var entries = await _blogService.GetArchiveEntriesAsync();
+            return Ok(entries);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting archive entries");
+            return StatusCode(500, new { message = "Internal server error" });
+        }
+    }
+
+    [HttpGet("archive/{year}")]
+    public async Task<ActionResult<List<BlogPost>>> GetPostsByYear(int year, [FromQuery] int? month = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            var posts = await _blogService.GetPostsByArchiveAsync(year, month, page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting posts by archive");
             return StatusCode(500, new { message = "Internal server error" });
         }
     }

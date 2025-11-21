@@ -257,6 +257,35 @@ public class BlogService : IBlogService
         }
     }
 
+    public async Task<List<ArchiveEntry>> GetArchiveEntriesAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetFromJsonAsync<List<ArchiveEntry>>("api/blog/archive");
+            return response ?? new List<ArchiveEntry>();
+        }
+        catch (Exception)
+        {
+            return new List<ArchiveEntry>();
+        }
+    }
+
+    public async Task<List<BlogPost>> GetPostsByArchiveAsync(int year, int? month = null, int page = 1, int pageSize = 10)
+    {
+        try
+        {
+            var url = $"api/blog/archive/{year}?page={page}&pageSize={pageSize}";
+            if (month.HasValue)
+                url += $"&month={month.Value}";
+            var response = await _httpClient.GetFromJsonAsync<List<BlogPost>>(url);
+            return response ?? new List<BlogPost>();
+        }
+        catch (Exception)
+        {
+            return new List<BlogPost>();
+        }
+    }
+
     private async Task<User> EnsureUserAsync()
     {
         var user = await _authService.GetCurrentUserAsync();

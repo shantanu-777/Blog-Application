@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "BlogApp.Frontend",
   "resources": {
-    "hash": "sha256-A3irMvqmwQIsSRiWi+15jnDggymODrclRWJ9VoMPgI8=",
+    "hash": "sha256-8x9h3hc3dbCGOHhgT8uNuyNowr+sQxyu9XaIqfK0yeQ=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-vtotCeXt2UD6oc459laJT32vBgigZ+eLoUmdeFkvYDk="
     },
@@ -255,12 +255,12 @@
       "mscorlib.wasm": "sha256-MZJ1V6miMP318lQowft4FPkcszcibPLDTwKj235fSAc=",
       "netstandard.wasm": "sha256-RYAURbR1AHkUZYjKgu+B/i3N3VP4abnAaH+vxwJ8d3c=",
       "System.Private.CoreLib.wasm": "sha256-4YzdATaWUDkUkRpe+hl+T61TaCjRVapVUtqTIai3Gd8=",
-      "BlogApp.Shared.wasm": "sha256-gJXO5ZBN9+SDm/X2p8yfvnoefer7kkTq+e7TkyYx6h4=",
-      "BlogApp.Frontend.wasm": "sha256-KdbloHsczpWusJWvLsbmTSGYcGQOPNeqYZKIna6s6Gs="
+      "BlogApp.Shared.wasm": "sha256-Dvq+xM0W59HpxBaf//DIjX4bxkgaDcx2DkrbMpuLTcI=",
+      "BlogApp.Frontend.wasm": "sha256-6IX77Rpz7SnoymYS7BVJB3FMRdur64Nw5QVNW3RbnJI="
     },
     "pdb": {
-      "BlogApp.Shared.pdb": "sha256-7PZpgi2cOIJqiLHLDA1dzpHGfNRl1iBlgUCws9E3JsA=",
-      "BlogApp.Frontend.pdb": "sha256-4OqeHuFPTOXy68RqRupnoBQ6M+gxImt+wivmj5kHyb0="
+      "BlogApp.Shared.pdb": "sha256-aeFxy4qegfiNjyyj9EfyKANRNiVdqyDq4J0+Dcxbn1E=",
+      "BlogApp.Frontend.pdb": "sha256-nt7GXV82OdAfOPqo3rB33VbBU/QRwMcCI0QxiJCYyoo="
     },
     "satelliteResources": {
       "cs": {

@@ -1,0 +1,137 @@
+@page "/category/{Slug}"
+@inject ICategoryService CategoryService
+@inject NavigationManager Navigation
+@using BlogApp.Shared.Models
+
+<PageTitle>@(category?.Name ?? "Category") - BlogApp</PageTitle>
+
+@if (isLoading)
+{
+    <div class="medium-page">
+        <div class="medium-post-skeleton" />
+    </div>
+}
+else if (category != null)
+{
+    <div class="medium-page">
+        <div class="medium-category-header">
+            <h1>@category.Name</h1>
+            @if (!string.IsNullOrEmpty(category.Description))
+            {
+                <p class="medium-category-description">@category.Description</p>
+            }
+            <p class="medium-category-count">@posts.Count posts</p>
+        </div>
+
+        <div class="medium-posts-list">
+            @if (posts.Any())
+            {
+                @foreach (var post in posts)
+                {
+                    <div class="medium-post-card" @onclick="() => NavigateToPost(post.Slug)">
+                        @if (!string.IsNullOrEmpty(post.FeaturedImageUrl))
+                        {
+                            <img src="@post.FeaturedImageUrl" alt="@post.Title" class="medium-post-img" />
+                        }
+                        <div class="medium-post-content">
+                            <h3>@post.Title</h3>
+                            <p class="medium-post-excerpt">@post.Excerpt</p>
+                            <div class="medium-post-meta">
+                                <span>@post.Author?.DisplayName • @post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                <span>@post.ReadingTimeMinutes min read</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="medium-empty-state">
+                    <h2>No posts found</h2>
+                    <p>There are no posts in this category yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="medium-page">
+        <div class="medium-empty-state">
+            <h2>Category not found</h2>
+            <p>The category you're looking for doesn't exist.</p>
+            <a href="/" class="medium-btn medium-btn-primary">Go Home</a>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private BlogApp.Shared.Models.Category? category;
+    private List<BlogPost> posts = new();
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCategory();
+    }
+
+    private async Task LoadCategory()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            category = await CategoryService.GetCategoryBySlugAsync(Slug);
+            if (category != null)
+            {
+                posts = await CategoryService.GetPostsByCategoryAsync(Slug, 1, 50);
+            }
+        }
+        catch (Exception)
+        {
+            // Handle error
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateToPost(string? slug)
+    {
+        if (!string.IsNullOrEmpty(slug))
+        {
+            Navigation.NavigateTo($"/post/{slug}");
+        }
+    }
+}
+
+<style>
+.medium-category-header {
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.medium-category-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.medium-category-description {
+    font-size: 1.25rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.medium-category-count {
+    font-size: 1rem;
+    color: #999;
+}
+</style>
+

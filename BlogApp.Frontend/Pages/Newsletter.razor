@@ -1,0 +1,182 @@
+@page "/newsletter"
+@inject INewsletterService NewsletterService
+@inject ISnackbar Snackbar
+
+<PageTitle>Newsletter - BlogApp</PageTitle>
+
+<div class="medium-page">
+    <div class="medium-newsletter-container">
+        <div class="medium-newsletter-header">
+            <h1>Subscribe to Our Newsletter</h1>
+            <p>Get the latest posts and updates delivered to your inbox</p>
+        </div>
+
+        <div class="medium-newsletter-form">
+            <div class="medium-form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" @bind="email" class="medium-input" placeholder="your.email@example.com" />
+            </div>
+
+            <div class="medium-form-group">
+                <label for="name">Name (Optional)</label>
+                <input type="text" id="name" @bind="name" class="medium-input" placeholder="Your name" />
+            </div>
+
+            <button class="medium-btn medium-btn-primary" @onclick="Subscribe" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span>Subscribing...</span>
+                }
+                else
+                {
+                    <span>Subscribe</span>
+                }
+            </button>
+
+            @if (isSubscribed)
+            {
+                <div class="medium-success-message">
+                    <p>✓ You're subscribed! Check your email for confirmation.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = string.Empty;
+    private string? name;
+    private bool isSubmitting = false;
+    private bool isSubscribed = false;
+
+    private async Task Subscribe()
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            Snackbar.Add("Please enter your email address", Severity.Warning);
+            return;
+        }
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            var success = await NewsletterService.SubscribeAsync(email, name);
+            if (success)
+            {
+                isSubscribed = true;
+                Snackbar.Add("Successfully subscribed to newsletter!", Severity.Success);
+                email = string.Empty;
+                name = null;
+            }
+            else
+            {
+                Snackbar.Add("Failed to subscribe. Please try again later.", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred. Please try again later.", Severity.Error);
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+}
+
+<style>
+.medium-newsletter-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.medium-newsletter-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.medium-newsletter-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.medium-newsletter-header p {
+    font-size: 1.125rem;
+    color: #666;
+}
+
+.medium-newsletter-form {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.medium-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.medium-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.medium-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.medium-input:focus {
+    outline: none;
+    border-color: #1a8917;
+}
+
+.medium-btn {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.medium-btn-primary {
+    background: #1a8917;
+    color: #fff;
+}
+
+.medium-btn-primary:hover:not(:disabled) {
+    background: #157412;
+}
+
+.medium-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.medium-success-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    color: #155724;
+}
+
+.medium-success-message p {
+    margin: 0;
+}
+</style>
+

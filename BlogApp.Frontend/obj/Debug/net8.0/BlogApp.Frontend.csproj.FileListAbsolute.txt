@@ -1592,8 +1592,8 @@ C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compr
 C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\58xcanhb6i-5uqwjdtvsx.gz
 C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\w4dqo4ski5-bjixqh7jlv.gz
 C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\a360rslkcl-elc6hkxrhr.gz
-C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\ju4ju1b6f7-4veh5ge3d4.gz
-C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\a3ej17we6y-4y6vq69gyr.gz
-C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\r0h49rzk2d-fmz2t719fi.gz
-C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\zyopbqt6zt-s1e0me43lb.gz
-C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\i42dqejc3v-l6rut47rfc.gz
+C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\ju4ju1b6f7-qi19mkv813.gz
+C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\a3ej17we6y-n4vozejx24.gz
+C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\r0h49rzk2d-ow4lu4wkr0.gz
+C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\zyopbqt6zt-6mgas09l3v.gz
+C:\Users\user\Downloads\Blog Application\BlogApp.Frontend\obj\Debug\net8.0\compressed\i42dqejc3v-en52jepwco.gz
